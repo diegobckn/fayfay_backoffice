@@ -25,11 +25,13 @@ import SearchIcon from "@mui/icons-material/Search"; // Importar el Ã­cono de bÃ
 import ModelConfig from "../../../Models/ModelConfig";
 import { SelectedOptionsContext } from "../../Context/SelectedOptionsProvider";
 import Product from "../../../Models/Product";
+import Model from "../../../Models/Model";
 
 const SearchProducts = ({
   onProductSelect,
   labelInput = "Buscar producto...",
-  textButton = "Buscar"
+  textButton = "Buscar",
+  focus = true
 }) => {
   const { showLoading, hideLoading } = useContext(SelectedOptionsContext);
   const apiUrl = ModelConfig.get().urlBase;
@@ -109,6 +111,19 @@ const SearchProducts = ({
     }
   };
 
+  const cargaAnteriorDeSesion = async (funSet, propiedad) => {
+    const anterior = await Model.getInstance().cargarDeSesion1(propiedad)
+    funSet(anterior)
+  }
+
+  useEffect(() => {
+    if (window.location.href.indexOf("stockmobile") > -1) {
+      cargaAnteriorDeSesion(setSearchTerm, "ultimaBusquedaStockMobile")
+    }
+    console.log("cambio focus", focus)
+  }, [focus])
+
+
   return (
     <Box sx={{ p: 2, mb: 4 }}>
       <Grid container spacing={2} alignItems="stretch">
@@ -163,7 +178,7 @@ const SearchProducts = ({
                 }}
               >
                 <Grid container spacing={2}>
-                  <Grid item xs={3}>
+                  <Grid item xs={12} sm={12} md={3} lg={3}>
                     <Table>
                       <TableHead>
                         <TableRow>
@@ -188,7 +203,7 @@ const SearchProducts = ({
                     </Table>
                   </Grid>
 
-                  <Grid item xs={3}>
+                  <Grid item xs={6} sm={6} md={3} lg={3}>
                     <Table>
                       <TableHead>
                         <TableRow>
@@ -213,7 +228,7 @@ const SearchProducts = ({
                     </Table>
                   </Grid>
 
-                  <Grid item xs={3}>
+                  <Grid item xs={6} sm={6} md={3} lg={3}>
                     <Table>
                       <TableHead>
                         <TableRow>
@@ -238,7 +253,7 @@ const SearchProducts = ({
                     </Table>
                   </Grid>
 
-                  <Grid item xs={3} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                  <Grid item xs={12} sm={12} md={3} lg={3} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                     <Button
                       variant="contained"
                       color="secondary"

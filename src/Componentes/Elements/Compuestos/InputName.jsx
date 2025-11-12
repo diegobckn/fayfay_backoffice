@@ -21,11 +21,12 @@ const InputName = ({
   label = fieldName[0].toUpperCase() + fieldName.substr(1),
   minLength = null,
   canAutoComplete = false,
-  maxLength = 20,
+  maxLength = 100,
   required = false,
   vars = null,
   onEnter = () => { },
-  onRef = () => { }
+  onRef = () => { },
+  readonly = false
 }) => {
 
   const {
@@ -78,6 +79,8 @@ const InputName = ({
     // console.log("checkKeyDown:", event)
     setLastKeyPressed(event.key)
 
+    if (readonly) return
+
     if (Validator.isTeclaControl(event)) {
       setKeyPressed(true)
       return
@@ -96,6 +99,8 @@ const InputName = ({
   }
 
   const checkChange = (event) => {
+    if (readonly) return
+
     if (!canAutoComplete && !keyPressed) {
       return
     }
