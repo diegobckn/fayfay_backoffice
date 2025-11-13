@@ -23,8 +23,8 @@ import Shop from "../../Models/Shop";
 import System from "../../Helpers/System";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import ShopDeliveryZonesSelectToAdd from "./ShopDeliveryZonesSelectToAdd";
-import ShopDeliveryZoneForm from "./ShopDeliveryZoneForm";
+import ShopDeliveryTimesSelectToAdd from "./ShopDeliveryTimesSelectToAdd";
+import ShopDeliveryTimeForm from "./ShopDeliveryTimeForm";
 export const defaultTheme = createTheme();
 
 
@@ -41,24 +41,24 @@ export default function ({
     showConfirm
   } = useContext(SelectedOptionsContext);
 
-  const [zones, setZones] = useState([])
-  const [showSelectZone, setshowSelectZone] = useState(false)
-  const [showEdit, setShowEdit] = useState(false)
-  const [editing, setEditing] = useState(false)
-  const [dataEdit, setDataEdit] = useState(null)
+  const [times, setTimes] = useState([])
+  const [showSelectTime, setshowSelectTime] = useState(false)
+  const [showCreate, setShowCreate] = useState(false)
 
-  const ordenarPorDistancia = (zonas) => {
+  const ordenarPorNombre = (zonas) => {
     const zonasCopia = System.clone(zonas)
     return zonasCopia.sort((item1, item2) => {
-      return item1.distance_gps - item2.distance_gps
+      const name1 = parseFloat(item1.name.replace(":", "."))
+      const name2 = parseFloat(item2.name.replace(":", "."))
+      return name1 - name2
     })
   }
 
-  const loadZones = () => {
+  const loadTimes = () => {
     showLoading("Cargando zonas")
-    Shop.getAllZonesCommerce(infoComercio, (resp) => {
-      console.log("resp zones", resp)
-      setZones(ordenarPorDistancia(resp.zones))
+    Shop.getAllTimesCommerce(infoComercio, (resp) => {
+      console.log("resp times", resp)
+      setTimes(ordenarPorNombre(resp.times))
       hideLoading()
     }, (er) => {
       showMessage(er)
@@ -68,7 +68,7 @@ export default function ({
 
   useEffect(() => {
     if (!openDialog) return
-    loadZones()
+    loadTimes()
   }, [openDialog]);
 
 
@@ -77,47 +77,38 @@ export default function ({
   }}
   >
     <DialogTitle>
-      Zonas de entregas
+      Horarios de entregas
     </DialogTitle>
     <DialogContent>
 
       <Grid container spacing={2} sx={{ padding: "2%" }}>
         <Grid item xs={12} sm={12} md={12} lg={12}>
-          <Typography>Asignado</Typography>
           <Table sx={{ border: "1px ", borderRadius: "8px" }}>
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell>Nombre</TableCell>
-                <TableCell>Distancia(en Km)</TableCell>
-                <TableCell>Precio</TableCell>
                 <TableCell>Acciones</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {zones.length === 0 ? (
+              {times.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6}>No hay registros</TableCell>
                 </TableRow>
               ) : (
-                zones.map((zone, ix) => (
+                times.map((time, ix) => (
                   <TableRow key={ix}>
-                    <TableCell>{zone.id}</TableCell>
-                    <TableCell>{zone.name}</TableCell>
-                    <TableCell>{zone.distance_gps}</TableCell>
-                    <TableCell>${
-                      (zone.pivot && zone.pivot.price != 0) ?
-                        System.formatMonedaLocal(zone.pivot.price) :
-                        System.formatMonedaLocal(zone.price)
-                    }</TableCell>
+                    <TableCell>{time.id}</TableCell>
+                    <TableCell>{time.name}</TableCell>
                     <TableCell>
                       <Button onClick={() => {
-                        showConfirm("Eliminar " + zone.name, () => {
-                          console.log("eliminar zone", zone)
-                          showLoading("Eliminando " + zone.name)
-                          Shop.removeZoneToCommerce(infoComercio, zone, () => {
+                        showConfirm("Eliminar " + time.name, () => {
+                          console.log("eliminar time", time)
+                          showLoading("Eliminando " + time.name)
+                          Shop.removeTimeToCommerce(infoComercio, time, () => {
                             hideLoading()
-                            loadZones()
+                            loadTimes()
                           }, (er) => {
                             showMessage(er)
                             hideLoading()
@@ -126,16 +117,6 @@ export default function ({
                       }}>
                         <DeleteIcon />
                       </Button>
-
-                      <Button onClick={() => {
-                        console.log("editar zone", zone)
-                        setDataEdit(zone)
-                        setEditing(true)
-                        setShowEdit(true)
-                      }}>
-                        <EditIcon />
-                      </Button>
-
                     </TableCell>
                   </TableRow>))
               )}
@@ -147,27 +128,26 @@ export default function ({
 
       </Grid>
 
-      <ShopDeliveryZoneForm
-        isEdit={editing}
-        openDialog={showEdit}
-        setOpenDialog={setShowEdit}
-        dataInitial={dataEdit}
+      <ShopDeliveryTimeForm
+        isEdit={false}
+        openDialog={showCreate}
+        setOpenDialog={setShowCreate}
         onSave={() => {
-          loadZones()
+          loadTimes()
         }}
         infoComercio={infoComercio}
       />
 
-      <ShopDeliveryZonesSelectToAdd
-        openDialog={showSelectZone}
-        setOpenDialog={setshowSelectZone}
+      <ShopDeliveryTimesSelectToAdd
+        openDialog={showSelectTime}
+        setOpenDialog={setshowSelectTime}
         infoComercio={infoComercio}
-        onSelect={(zoneSel) => {
-          console.log("zone", zoneSel)
-          showLoading("Agregando " + zoneSel.name)
-          Shop.addZoneToCommerce(infoComercio, zoneSel, () => {
+        onSelect={(timeSel) => {
+          console.log("time", timeSel)
+          showLoading("Agregando " + timeSel.name)
+          Shop.addTimeToCommerce(infoComercio, timeSel, () => {
             hideLoading()
-            loadZones()
+            loadTimes()
           }, (er) => {
             showMessage(er)
             hideLoading()
@@ -179,15 +159,13 @@ export default function ({
       <SmallButton
         textButton={"Agregar existente"}
         actionButton={() => {
-          setshowSelectZone(true)
+          setshowSelectTime(true)
         }} />
 
       <SmallButton
-        textButton={"Crear nueva"}
+        textButton={"Crear nuevo"}
         actionButton={() => {
-          setDataEdit(null)
-          setEditing(false)
-          setShowEdit(true)
+          setShowCreate(true)
         }} />
 
 
