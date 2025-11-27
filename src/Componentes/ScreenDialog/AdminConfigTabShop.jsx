@@ -394,7 +394,7 @@ const AdminConfigTabShop = ({
                   {infoComercio.gps_position != "" && (
                     <SmallButton textButton={"Ver en mapa"} actionButton={() => {
                       // -34.566302, -58.543924
-                      const coords = infoComercio.gps_position.replaceAll(" ", "").split(",")
+                      const coords = inputs.gps_position[0].replaceAll(" ", "").split(",")
                       const lat = coords[0]
                       const lon = coords[1]
 
@@ -426,7 +426,7 @@ const AdminConfigTabShop = ({
                         const longitud = position.coords.longitude;
                         console.log("actualiza gps", latitud, "..", longitud)
                         // callbackOk(latitud, longitud)
-                        inputs.gps_position[1]("gps_position", latitud + ", " + longitud)
+                        inputs.gps_position[1](latitud + ", " + longitud)
                         showMessage("Capturado gps correctamente")
                         // -34.543082, -58.575656
 
@@ -498,7 +498,7 @@ const AdminConfigTabShop = ({
                     textButton={"Tarifas de repartidores"}
                     style={{ width: "100%" }}
                     actionButton={() => setShowZones(true)}
-                    />
+                  />
 
                   <ShopDeliveryZones infoComercio={infoComercio} setOpenDialog={setShowZones} openDialog={showZones} />
                   <ShopDeliveryTimes infoComercio={infoComercio} setOpenDialog={setShowTimes} openDialog={showTimes} />

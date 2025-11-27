@@ -88,6 +88,7 @@ export default function PermanentDrawerLeft() {
         ,
         { text: "Usuarios", link: "/usuarios", icon: <PeopleAltIcon /> },
         { text: "Precios", link: "/precios", icon: <PriceChangeIcon /> },
+        { text: "Asig Precios", link: "/asigprecios", icon: <PriceChangeIcon /> },
         {
           text: "Proveedores",
           link: "/proveedores",
@@ -144,6 +145,8 @@ export default function PermanentDrawerLeft() {
             // { text: "Reporte Z", link: "/reportes/reportez",icon: <SummarizeIcon />},
             { text: "Reporte Cierre Z", link: "/reportes/reportecierrez",icon: <SummarizeIcon />},
             { text: "Preventas", link: "/reportes/preventas",icon: <SummarizeIcon />},
+            { text: "Reporte Flujo", link: "/reportes/flujo",icon: <SummarizeIcon />},
+            { text: "Reporte Mov stock", link: "/reportes/movstock",icon: <SummarizeIcon />},
 
           ],
         },

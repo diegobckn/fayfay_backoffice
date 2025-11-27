@@ -7,6 +7,7 @@ import {
 } from "@mui/material";
 import { SelectedOptionsContext } from "../../Context/SelectedOptionsProvider";
 import Validator from "../../../Helpers/Validator";
+import System from "../../../Helpers/System";
 
 
 const InputNumber = ({
@@ -77,6 +78,10 @@ const InputNumber = ({
   }
 
   const checkKeyDown = (event) => {
+    if (System.isMobile()) {
+      setKeyPressed(true)
+      return
+    }
     console.log("checkKeyDown")
     console.log("isDecimal", isDecimal)
     console.log("Validator.isDecimal(" + event.key + ")", Validator.isDecimal(event.key))
@@ -177,7 +182,7 @@ const InputNumber = ({
         autoFocus={autoFocus}
         margin="normal"
         required={required}
-        type="text"
+        type="number"
         label={label}
         value={number}
         onChange={checkChange}

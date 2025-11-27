@@ -10,6 +10,7 @@ import ModelConfig from "../../../Models/ModelConfig";
 import { Check, Dangerous } from "@mui/icons-material";
 import User from "../../../Models/User";
 import Validator from "../../../Helpers/Validator";
+import System from "../../../Helpers/System";
 
 
 const InputName = ({
@@ -82,6 +83,11 @@ const InputName = ({
     if (readonly) return
 
     if (Validator.isTeclaControl(event)) {
+      setKeyPressed(true)
+      return
+    }
+
+    if (System.isMobile()) {
       setKeyPressed(true)
       return
     }

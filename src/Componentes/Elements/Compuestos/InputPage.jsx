@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { TextField, InputLabel } from "@mui/material";
 import { SelectedOptionsContext } from "../../Context/SelectedOptionsProvider";
 import Validator from "../../../Helpers/Validator";
+import System from "../../../Helpers/System";
 
 const InputPage = ({
   inputState,
@@ -62,6 +63,10 @@ const InputPage = ({
   };
 
   const checkKeyDown = (event) => {
+    if (System.isMobile()) {
+      setKeyPressed(true)
+      return
+    }
     if (!canAutoComplete && event.key === "Unidentified") {
       event.preventDefault();
       return false;

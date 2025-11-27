@@ -346,6 +346,11 @@ class System {
         return txt.charAt(0).toUpperCase() + txt.slice(1);
     }
 
+    static isMobile() {
+        const userAgent = navigator.userAgent;
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    };
+
 }
 
 

@@ -25,7 +25,13 @@ import Client from "../../Models/Client"
 import System from "../../Helpers/System";
 export const defaultTheme = createTheme();
 
-const IngresoCL = ({ onClose, openDialog, setOpendialog }) => {
+const IngresoCL = ({
+  onClose,
+  openDialog,
+  setOpendialog,
+  onExist = (rut) => { },
+  titulo = "Ingreso Clientes"
+}) => {
   const { showLoading, hideLoading, showLoadingDialog, showMessage } =
     useContext(SelectedOptionsContext);
 
@@ -40,7 +46,7 @@ const IngresoCL = ({ onClose, openDialog, setOpendialog }) => {
     region: useState(-1),
     comuna: useState(-1),
     giro: useState(""),
-    formaPago: useState(""),
+    formaPago: useState("Efectivo"),
     urlPagina: useState(""),
   };
 
@@ -100,48 +106,54 @@ const IngresoCL = ({ onClose, openDialog, setOpendialog }) => {
 
   return (
     <Dialog
+      sx={{
+        padding: (System.isMobile() ? "50px 0px" : "")
+      }}
       open={openDialog}
       onClose={() => {
         setOpendialog(false);
         onClose();
       }}
       maxWidth={"lg"}
-    >
-      <Paper elevation={16} square>
+      >
+      <Paper elevation={16} square sx={{
+      padding: (System.isMobile() ? "20px 15px" : "")
+      }}>
         <Grid container spacing={2} sx={{ padding: "2%" }}>
           <Grid item xs={12}>
-            <h2>Ingreso Clientes</h2>
+            <h2>{titulo}</h2>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <InputRutCliente
               vars={[states, validatorStates]}
               required={true}
               autoFocus={true}
+              onExist={onExist}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <InputName
               vars={[states, validatorStates]}
               fieldName="nombre"
               required={true}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <InputName
               fieldName="apellido"
               vars={[states, validatorStates]}
               required={true}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <InputEmail
               fieldName="correo"
               vars={[states, validatorStates]}
               required={true}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <InputName
               label="Razón Social"
               fieldName="razonSocial"
@@ -149,7 +161,7 @@ const IngresoCL = ({ onClose, openDialog, setOpendialog }) => {
               required={true}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <InputPhone
               label="Tel&eacute;fono"
               fieldName="phone"
@@ -158,7 +170,7 @@ const IngresoCL = ({ onClose, openDialog, setOpendialog }) => {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <InputName
               label="Direcci&oacute;n"
               fieldName="direccion"
@@ -167,7 +179,7 @@ const IngresoCL = ({ onClose, openDialog, setOpendialog }) => {
               vars={[states, validatorStates]}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <SelectRegion
               label="Regi&oacute;n"
               fieldName="region"
@@ -175,7 +187,7 @@ const IngresoCL = ({ onClose, openDialog, setOpendialog }) => {
               vars={[states, validatorStates]}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <SelectComuna
               fieldName="comuna"
               inputRegionState={states.region}
@@ -183,7 +195,7 @@ const IngresoCL = ({ onClose, openDialog, setOpendialog }) => {
               vars={[states, validatorStates]}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <InputName
               fieldName="giro"
               required={true}
@@ -191,7 +203,7 @@ const IngresoCL = ({ onClose, openDialog, setOpendialog }) => {
               vars={[states, validatorStates]}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <InputName
               label="Forma de pago"
               fieldName="formaPago"
@@ -200,7 +212,7 @@ const IngresoCL = ({ onClose, openDialog, setOpendialog }) => {
               vars={[states, validatorStates]}
             />
           </Grid>
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} sm={4} md={4}>
             <InputPage
               label="Pagina Web"
               fieldName="urlPagina"

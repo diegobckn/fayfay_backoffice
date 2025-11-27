@@ -14,6 +14,7 @@ import Login from './Pages/Login';
 import Usuarios from './Pages/Usuarios';
 import Sucursales from './Pages/Sucursales';
 import Precios from './Pages/Precios';
+import AsigPrecios from './Pages/AsigPrecios';
 import Proveedores from './Pages/proveedores/Proveedores';
 import Productos from './Pages/Productos';
 import Clientes from './Pages/Clientes';
@@ -42,6 +43,7 @@ import ReporteMaestroProductos from './Pages/ReporteMaestroProductos';
 import Stock from './Pages/Stock/';
 import EntradaSalidaStock from './Pages/EntradaSalidaStock';
 import Preventas from './Pages/Preventas';
+import ReporteFlujo from './Pages/ReporteFlujo';
 
 import { SelectedOptionsProvider } from "./Componentes/Context/SelectedOptionsProvider";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -55,6 +57,8 @@ import Preventa from './Pages/PreventaSucursal';
 import ReporteZ from './Pages/ReporteZ';
 import ReporteCierreZ from './Pages/ReporteCierreZ';
 import ReporteStockValorizado from './Pages/ReporteStockValorizado';
+import CrearClienteQr from './Pages/CrearClienteQr';
+import ReporteMovStock from './Pages/ReporteMovStock';
 
 function App() {
   return (
@@ -79,8 +83,10 @@ function App() {
             <Route path="/sucursales/preventa" element={<Preventa />} />
             <Route path="/sucursales/pasarelapago" element={<PasarelaPago />} />
             <Route path="/precios" element={<Precios />} />
+            <Route path="/asigprecios" element={<AsigPrecios />} />
             <Route path="/proveedores" element={<Proveedores />} />
             <Route path="/clientes" element={<Clientes />} />
+            <Route path="/clientes/crear-por-qr" element={<CrearClienteQr />} />
             <Route path="/clientes/reportes" element={<ReportesClientes />} />
             <Route path="/productos" element={<Productos />} />
             <Route path="/productos/categorias" element={<Categorias />} />
@@ -93,6 +99,8 @@ function App() {
             <Route path="reportes/cuentacorrienteclientes" element={<ReportesCtaCorriente />} />
             <Route path="reportes/cuentacorrienteproveedores" element={<ReportesCtaCorrienteProv />} />
             <Route path="reportes/rankingventas" element={<RankingVentas />} />
+            <Route path="reportes/flujo" element={<ReporteFlujo />} />
+            <Route path="reportes/movstock" element={<ReporteMovStock />} />
             <Route path="reportes/rankingproductos" element={<RankingProductos />} />
             <Route path="reportes/rankinglibroventas" element={<RankingLibroVentas />} />
             <Route path="reportes/stockcriticos" element={<ReporteProductosStockCritico />} />
