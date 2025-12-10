@@ -64,62 +64,6 @@ class Shop extends ModelSingleton {
         })
     }
 
-
-    static async enviarImagenProperty(topic: string, unique: string, fileInput: any, infoComercio: any, callbackOk: any, callbackWrong: any) {
-        // console.log("infocomercio", infoComercio)
-        // callbackWrong("x")
-        // return
-        // const configs = ModelConfig.get()
-        var url = "https://softus.com.ar/easypos/update-image-property"
-
-        var formData = new FormData();
-        formData.append('image', fileInput);
-        formData.append('Nro_Rut', infoComercio.Nro_Rut);
-        formData.append('topic', topic);
-        formData.append('unique', unique);
-
-        const ant = SoporteTicket.reportarError
-        SoporteTicket.reportarError = false
-        EndPoint.sendPost(url, formData, (responseData: any, response: any) => {
-            callbackOk(responseData, response);
-            SoporteTicket.reportarError = ant
-        }, (err: any) => {
-            callbackWrong(err)
-            SoporteTicket.reportarError = ant
-        }, {
-            headers: {
-                'Content-Type': 'multipart/form-data', // El servidor debe procesar esto
-            },
-        })
-    }
-
-    static async eliminarImagenProperty(topic: string, unique: string, infoComercio: any, callbackOk: any, callbackWrong: any) {
-        // console.log("infocomercio", infoComercio)
-        // callbackWrong("x")
-        // return
-        // const configs = ModelConfig.get()
-        var url = "https://softus.com.ar/easypos/delete-image-property"
-
-        var formData = new FormData();
-        formData.append('Nro_Rut', infoComercio.Nro_Rut);
-        formData.append('topic', topic);
-        formData.append('unique', unique);
-
-        const ant = SoporteTicket.reportarError
-        SoporteTicket.reportarError = false
-        EndPoint.sendPost(url, formData, (responseData: any, response: any) => {
-            callbackOk(responseData, response);
-            SoporteTicket.reportarError = ant
-        }, (err: any) => {
-            callbackWrong(err)
-            SoporteTicket.reportarError = ant
-        }, {
-            headers: {
-                'Content-Type': 'multipart/form-data', // El servidor debe procesar esto
-            },
-        })
-    }
-
     static async getProperty(topic: string, unique: string, name: string, infoComercio: any, callbackOk: any, callbackWrong: any) {
         // console.log("infocomercio", infoComercio)
         // callbackWrong("x")

@@ -215,6 +215,7 @@ export default () => {
                       <TableCell>Producto</TableCell>
                       <TableCell>Tipo</TableCell>
                       <TableCell>Glosa</TableCell>
+                      <TableCell>Cantidad</TableCell>
                       <TableCell>Saldo Stock</TableCell>
                     </TableRow>
                   </TableHead>
@@ -235,6 +236,9 @@ export default () => {
                         </TableCell>
                         <TableCell>
                           {mov.glosa}
+                        </TableCell>
+                        <TableCell>
+                          {mov.cantidad}
                         </TableCell>
                         <TableCell>
                           {mov.stockActual}

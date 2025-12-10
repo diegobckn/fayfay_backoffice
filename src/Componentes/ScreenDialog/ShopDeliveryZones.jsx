@@ -43,9 +43,7 @@ export default function ({
 
   const [zones, setZones] = useState([])
   const [showSelectZone, setshowSelectZone] = useState(false)
-  const [showEdit, setShowEdit] = useState(false)
-  const [editing, setEditing] = useState(false)
-  const [dataEdit, setDataEdit] = useState(null)
+  const [showCreate, setShowCreate] = useState(false)
 
   const ordenarPorDistancia = (zonas) => {
     const zonasCopia = System.clone(zonas)
@@ -57,7 +55,7 @@ export default function ({
   const loadZones = () => {
     showLoading("Cargando zonas")
     Shop.getAllZonesCommerce(infoComercio, (resp) => {
-      console.log("resp zones", resp)
+      // console.log("resp zones", resp)
       setZones(ordenarPorDistancia(resp.zones))
       hideLoading()
     }, (er) => {
@@ -113,7 +111,7 @@ export default function ({
                     <TableCell>
                       <Button onClick={() => {
                         showConfirm("Eliminar " + zone.name, () => {
-                          console.log("eliminar zone", zone)
+                          // console.log("eliminar zone", zone)
                           showLoading("Eliminando " + zone.name)
                           Shop.removeZoneToCommerce(infoComercio, zone, () => {
                             hideLoading()
@@ -125,15 +123,6 @@ export default function ({
                         })
                       }}>
                         <DeleteIcon />
-                      </Button>
-
-                      <Button onClick={() => {
-                        console.log("editar zone", zone)
-                        setDataEdit(zone)
-                        setEditing(true)
-                        setShowEdit(true)
-                      }}>
-                        <EditIcon />
                       </Button>
 
                     </TableCell>
@@ -148,10 +137,8 @@ export default function ({
       </Grid>
 
       <ShopDeliveryZoneForm
-        isEdit={editing}
-        openDialog={showEdit}
-        setOpenDialog={setShowEdit}
-        dataInitial={dataEdit}
+        openDialog={showCreate}
+        setOpenDialog={setShowCreate}
         onSave={() => {
           loadZones()
         }}
@@ -163,7 +150,7 @@ export default function ({
         setOpenDialog={setshowSelectZone}
         infoComercio={infoComercio}
         onSelect={(zoneSel) => {
-          console.log("zone", zoneSel)
+          // console.log("zone", zoneSel)
           showLoading("Agregando " + zoneSel.name)
           Shop.addZoneToCommerce(infoComercio, zoneSel, () => {
             hideLoading()
@@ -185,9 +172,7 @@ export default function ({
       <SmallButton
         textButton={"Crear nueva"}
         actionButton={() => {
-          setDataEdit(null)
-          setEditing(false)
-          setShowEdit(true)
+          setShowCreate(true)
         }} />
 
 

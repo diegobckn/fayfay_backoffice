@@ -67,7 +67,7 @@ const SearchListProducts = ({
     const totalPages = Math.ceil(productCount / ITEMS_PER_PAGE);
     if (!isNaN(totalPages)) {
       setTotalPages(totalPages);
-      console.log("setPageCount .. productCount", productCount)
+      // console.log("setPageCount .. productCount", productCount)
     } else {
       console.error("Invalid product count:", productCount);
     }
@@ -77,12 +77,12 @@ const SearchListProducts = ({
     // console.log("vars:", System.getUrlVars())
     var urlVars = System.getUrlVars()
     if (urlVars.search != undefined) {
-      console.log("cae aca")
+      // console.log("cae aca")
       doSearch(urlVars.search)
       return
     }
 
-    console.log("Cargando productos...")
+    // console.log("Cargando productos...")
     showLoading("Cargando productos...")
 
     Product.getInstance().getAllPaginate({
@@ -114,7 +114,7 @@ const SearchListProducts = ({
     }
 
 
-    console.log("hace busqueda")
+    // console.log("hace busqueda")
     showLoading("haciendo busqueda por descripcion")
 
 
@@ -139,8 +139,8 @@ const SearchListProducts = ({
           setPageCount(response.data.cantidadRegistros);
           setPageProduct(prods);
 
-          console.log("asigno productos")
-          console.log(prods)
+          // console.log("asigno productos")
+          // console.log(prods)
           hideLoading()
           setHasResult(prods.length > 0)
         }, () => {
@@ -173,16 +173,16 @@ const SearchListProducts = ({
     if (searchTerm.trim() == "") {
       listarProductos()
     } else {
-      console.log("tiene algo para buscar")
+      // console.log("tiene algo para buscar")
       doSearch()
     }
   }
 
   useEffect(() => {
-    console.log("cambio pageProduct")
+    // console.log("cambio pageProduct")
   }, [pageProduct,]);
   useEffect(() => {
-    console.log("cambio totalPages", totalPages)
+    // console.log("cambio totalPages", totalPages)
   }, [totalPages,]);
 
   // useEffect(() => {
@@ -201,7 +201,7 @@ const SearchListProducts = ({
 
   useEffect(() => {
     updateList()
-    console.log("cambio de pagina")
+    // console.log("cambio de pagina")
   }, [currentPage]);
 
 

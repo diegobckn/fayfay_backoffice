@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Paper,
   Grid,
@@ -37,13 +37,26 @@ import axios from "axios";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ModelConfig from "../Models/ModelConfig";
+import System from "../Helpers/System";
+import { SelectedOptionsContext } from "../Componentes/Context/SelectedOptionsProvider";
+import Validator from "../Helpers/Validator";
 
 export default () => {
+
+  const {
+    showLoading,
+    hideLoading,
+    userData,
+    showMessage,
+    showConfirm
+  } = useContext(SelectedOptionsContext);
+
   const apiUrl = ModelConfig.get().urlBase;
-  const [proveedores, setProveedores] = useState([]);
+  const [deudas, setDeudas] = useState([]);
+
   const [selectedProveedor, setSelectedProveedor] = useState([]);
   const [openPagar, setOpenPagar] = useState(false);
-  const [groupedProveedores, setGroupedProveedores] = useState([]);
+  const [groupedDeudas, setGroupedDeudas] = useState([]);
 
   const [openPaymentProcess, setOpenPaymentProcess] = useState(false);
   const [openPaymentGroupProcess, setOpenPaymentGroupProcess] = useState(false);
@@ -60,6 +73,8 @@ export default () => {
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [detailOpen, setDetailOpen] = useState(false);
+
+
   const handleDetailOpen = (item) => {
     setSelectedItem(item);
     setDetailOpen(true);
@@ -96,32 +111,32 @@ export default () => {
     setSnackbarMessage("");
   };
 
-  const fetchClientes = async () => {
+  const fetchUsuarios = async () => {
     try {
       const response = await axios.get(
-        `${apiUrl}/ReporteClientes/GetAllClientesDeudas`
+        `${apiUrl}/Usuarios/GetUsuariosDeudas`
       );
-      setProveedores(response.data.clienteDeudaAlls);
+      setDeudas(response.data.usuarioDeudas);
     } catch (error) {
       console.error("Error fetching clientes:", error);
     }
   };
 
   useEffect(() => {
-    fetchClientes();
+    fetchUsuarios();
   }, []);
 
-  const handlePagarOpen = (rut) => {
-    const filteredProveedores = proveedores.filter(
-      (proveedor) => proveedor.rut === rut
+  const handlePagarOpen = (codigoUsuario) => {
+    const filteredProveedores = deudas.filter(
+      (deuda) => deuda.codigoUsuario === codigoUsuario
     );
-    setGroupedProveedores(filteredProveedores);
+    setGroupedDeudas(filteredProveedores);
     setOpenPagar(true);
   };
 
   const handlePagarClose = () => {
     setOpenPagar(false);
-    setGroupedProveedores([]);
+    setGroupedDeudas([]);
   };
 
   const handleOpenPaymentProcess = () => {
@@ -155,13 +170,11 @@ export default () => {
     setOpenPaymentGroupProcess(false);
   };
 
-
-
   const getTotalSelected = () => {
     if (paymentOrigin === "detalleProveedor" && selectedProveedor) {
       return selectedProveedor.total;
     } else {
-      return groupedProveedores.reduce(
+      return groupedDeudas.reduce(
         (acc, proveedor) => acc + proveedor.total,
         0
       );
@@ -183,22 +196,8 @@ export default () => {
       switch (metodoPago) {
         case "TRANSFERENCIA":
           endpoint =
-            `${apiUrl}/Clientes/PostClientePagarDeudaTransferenciaByIdCliente`;
+            `${apiUrl}/Usuario/PostUsuarioPagarDeudaByIdUsuario`;
 
-          // if (
-          //   nombre === "" ||
-          //   rut === "" ||
-          //   selectedBanco === "" ||
-          //   tipoCuenta === "" ||
-          //   nroCuenta === "" ||
-          //   nroOperacion === ""
-          // ) {
-          //   setTransferenciaError(
-          //     "Por favor, completa todos los campos necesarios para la transferencia."
-          //   );
-          //   setLoading(false);
-          //   return;
-          // }
           if (nombre === "") {
             setTransferenciaError("Por favor, ingresa el nombre.");
             setLoading(false);
@@ -209,7 +208,7 @@ export default () => {
             setLoading(false);
             return;
           }
-          if (!validarRutChileno(rut)) {
+          if (!Validator.isRutChileno(rut)) {
             setTransferenciaError("El RUT ingresado NO es válido.");
             setLoading(false);
             return;
@@ -255,7 +254,8 @@ export default () => {
             ],
             montoPagado: montoAPagar,
             metodoPago: metodoPago,
-            idUsuario: 0,
+            idUsuario: userData.codigoUsuario,
+            idEmpresa: parseInt(ModelConfig.get("idEmpresa")),
             transferencias: {
               idCuentaCorrientePago: selectedItem.id.toString(),
               nombre: nombre,
@@ -269,28 +269,28 @@ export default () => {
           };
           break;
 
-        case "CHEQUE":
-          endpoint =
-            `${apiUrl}Clientes/PostClientePagarDeudaChequeByIdCliente`;
+        // case "CHEQUE":
+        //   endpoint =
+        //     `${apiUrl}Usuario/PostClientePagarDeudaChequeByIdCliente`;
 
-          requestBody = {
-            deudaIds: [
-              {
-                idCuentaCorriente: selectedItem.id.toString(),
-                idCabecera: selectedItem.idCabecera.toString(),
-                total: selectedItem.total.toString(),
-              },
-            ],
-            montoPagado: montoAPagar,
-            metodoPago: metodoPago,
-            idUsuario: 0,
-            // Add cheque-specific fields here if needed
-          };
-          break;
+        //   requestBody = {
+        //     deudaIds: [
+        //       {
+        //         idCuentaCorriente: selectedItem.id.toString(),
+        //         idCabecera: selectedItem.idCabecera.toString(),
+        //         total: selectedItem.total.toString(),
+        //       },
+        //     ],
+        //     montoPagado: montoAPagar,
+        //     metodoPago: metodoPago,
+        //     idUsuario: 0,
+        //     // Add cheque-specific fields here if needed
+        //   };
+        //   break;
 
         case "EFECTIVO":
           endpoint =
-            `${apiUrl}/Clientes/PostClientePagarDeudaByIdCliente`;
+            `${apiUrl}/Usuarios/PostUsuarioPagarDeudaByIdUsuario`;
 
           requestBody = {
             deudaIds: [
@@ -302,7 +302,8 @@ export default () => {
             ],
             montoPagado: montoAPagar,
             metodoPago: metodoPago,
-            idUsuario: 0,
+            idUsuario: userData.codigoUsuario,
+            idEmpresa: parseInt(ModelConfig.get("idEmpresa")),
             // Add cash-specific fields here if needed
           };
           break;
@@ -320,7 +321,7 @@ export default () => {
         setSnackbarMessage(response.data.descripcion);
         handleClosePaymentProcess();
         setCantidadPagada(0);
-        fetchClientes();
+        fetchUsuarios();
         handleDetailClose();
         handleTransferenciaModalClose();
 
@@ -345,11 +346,8 @@ export default () => {
     }
   };
 
-
-
-
-  const totalGeneral = proveedores.reduce(
-    (acc, proveedor) => acc + proveedor.total,
+  const totalGeneral = deudas.reduce(
+    (acc, deuda) => acc + deuda.total,
     0
   );
 
@@ -357,7 +355,7 @@ export default () => {
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      const allIds = groupedProveedores.map((proveedor) => proveedor.id);
+      const allIds = groupedDeudas.map((proveedor) => proveedor.id);
       setSelectedIds(allIds);
     } else {
       setSelectedIds([]);
@@ -374,13 +372,13 @@ export default () => {
     }
   };
 
-  const selectedTotal = groupedProveedores
-    .filter((proveedor) => selectedIds.includes(proveedor.id))
-    .reduce((total, proveedor) => total + proveedor.total, 0);
+  const selectedTotal = groupedDeudas
+    .filter((deuda) => selectedIds.includes(deuda.id))
+    .reduce((total, deuda) => total + deuda.total, 0);
 
   const [cantidadPagada, setCantidadPagada] = useState(selectedTotal || 0);
 
-  const allSelected = selectedIds.length === groupedProveedores.length;
+  const allSelected = selectedIds.length === groupedDeudas.length;
 
   // Función ORDENAMIENTO DE DATOS //////
 
@@ -414,80 +412,30 @@ export default () => {
     setOpenChequeModal(false);
   };
 
-  const tiposDeCuenta = {
-    "Cuenta Corriente": "Cuenta Corriente",
-    "Cuenta de Ahorro": "Cuenta de Ahorro",
-    "Cuenta Vista": "Cuenta Vista",
-    "Cuenta Rut": "Cuenta Rut",
-    "Cuenta de Depósito a Plazo (CDP)": "Cuenta de Depósito a Plazo (CDP)",
-    "Cuenta de Inversión": "Cuenta de Inversión",
-  };
+  const tiposDeCuenta = System.getInstance().tiposDeCuenta()
   const handleChangeTipoCuenta = (event) => {
     setTipoCuenta(event.target.value); // Actualizar el estado del tipo de cuenta seleccionado
   };
-  const bancosChile = [
-    { id: 1, nombre: "Banco de Chile" },
-    { id: 2, nombre: "Banco Santander Chile" },
-    { id: 3, nombre: "Banco Estado" },
-    { id: 4, nombre: "Scotiabank Chile" },
-    { id: 5, nombre: "Banco BCI" },
-    { id: 6, nombre: "Banco Itaú Chile" },
-    { id: 7, nombre: "Banco Security" },
-    { id: 8, nombre: "Banco Falabella" },
-    { id: 9, nombre: "Banco Ripley" },
-    { id: 10, nombre: "Banco Consorcio" },
-    { id: 11, nombre: "Banco Internacional" },
-    { id: 12, nombre: "Banco Edwards Citi" },
-    { id: 13, nombre: "Banco de Crédito e Inversiones" },
-    { id: 14, nombre: "Banco Paris" },
-    { id: 15, nombre: "Banco Corpbanca" },
-    { id: 16, nombre: "Banco BICE" },
-
-    // Agrega más bancos según sea necesario
-  ];
+  const bancosChile = System.getInstance().bancosChile();
 
   const handleBancoChange = (event) => {
     setSelectedBanco(event.target.value);
   };
   const hoy = dayjs();
   const inicioRango = dayjs().subtract(1, "week"); // Resta 1 semanas
-  const validarRutChileno = (rut) => {
-    if (!/^[0-9]+[-|‐]{1}[0-9kK]{1}$/.test(rut)) {
-      return false;
-    }
-
-    const partesRut = rut.split("-");
-    const digitoVerificador = partesRut[1].toUpperCase();
-    const numeroRut = partesRut[0];
-
-    if (numeroRut.length < 7) {
-      return false;
-    }
-
-    const calcularDigitoVerificador = (T) => {
-      let M = 0;
-      let S = 1;
-      for (; T; T = Math.floor(T / 10)) {
-        S = (S + (T % 10) * (9 - (M++ % 6))) % 11;
-      }
-      return S ? String(S - 1) : "K";
-    };
-
-    return calcularDigitoVerificador(numeroRut) === digitoVerificador;
-  };
 
   const handlePayment = async () => {
     try {
       setLoading(true);
 
       let endpoint =
-        apiUrl + "/Clientes/PostClientePagarDeudaByIdCliente";
+        apiUrl + "/Usuario/PostUsuarioPagarDeudaByIdUsuario";
 
       let requestBody = {};
 
       if (metodoPago === "TRANSFERENCIA") {
         endpoint =
-          apiUrl + "/Clientes/PostClientePagarDeudaTransferenciaByIdCliente";
+          apiUrl + "/Usuario/PostClientePagarDeudaTransferenciaByIdCliente";
 
         if (
           nombre === "" ||
@@ -505,7 +453,7 @@ export default () => {
           return;
         }
 
-        if (!validarRutChileno(rut)) {
+        if (!Validator.isRutChileno(rut)) {
           setTransferenciaError("El RUT ingresado NO es válido.");
           setLoading(false);
           return;
@@ -528,7 +476,7 @@ export default () => {
         };
       } else if (metodoPago === "CHEQUE") {
         endpoint =
-          apiUrl + "/Clientes/PostClientePagarDeudaChequeByIdCliente";
+          apiUrl + "/Usuario/PostClientePagarDeudaChequeByIdCliente";
         requestBody = {
           montoPagado: montoAPagar,
           metodoPago: metodoPago,
@@ -542,7 +490,7 @@ export default () => {
         };
       } else if (metodoPago === "EFECTIVO") {
         endpoint =
-          `${apiUrl}/Clientes/PostClientePagarDeudaEfectivoByIdCliente`;
+          `${apiUrl}/Usuario/PostClientePagarDeudaEfectivoByIdCliente`;
         requestBody = {
           montoPagado: montoAPagar,
           metodoPago: metodoPago,
@@ -580,7 +528,7 @@ export default () => {
         idCuentaCorrientePago = selectedItem.id;
       } else {
         // Pago agrupado
-        const selectedDeudas = proveedores.filter((deuda) => deuda.selected);
+        const selectedDeudas = deudas.filter((deuda) => deuda.selected);
         if (selectedDeudas.length === 0) {
           setError("Por favor, selecciona al menos una deuda para pagar.");
           setLoading(false);
@@ -611,7 +559,7 @@ export default () => {
         handleClosePaymentProcess();
         handleClosePaymentGroupProcess();
         setCantidadPagada(0);
-        fetchClientes();
+        fetchUsuarios();
         handleDetailClose();
 
 
@@ -635,11 +583,11 @@ export default () => {
       setLoading(true);
 
       let endpoint =
-        `${apiUrl}/Clientes/PostClientePagarDeudaByIdCliente`;
+        `${apiUrl}/Usuario/PostUsuarioPagarDeudaByIdUsuario`;
 
       if (metodoPago === "TRANSFERENCIA") {
         endpoint =
-          `${apiUrl}/Clientes/PostClientePagarDeudaTransferenciaByIdCliente`;
+          `${apiUrl}/Usuario/PostClientePagarDeudaTransferenciaByIdCliente`;
 
         if (
           nombre === "" ||
@@ -657,7 +605,7 @@ export default () => {
           return;
         }
 
-        if (!validarRutChileno(rut)) {
+        if (!Validator.isRutChileno(rut)) {
           setTransferenciaError("El RUT ingresado NO es válido.");
           setLoading(false);
           return;
@@ -670,7 +618,7 @@ export default () => {
         return;
       } else setError("");
 
-      const selectedDeudas = groupedProveedores.filter((deuda) => selectedIds.includes(deuda.id));
+      const selectedDeudas = groupedDeudas.filter((deuda) => selectedIds.includes(deuda.id));
       if (selectedDeudas.length === 0) {
         setError("Por favor, selecciona al menos una deuda para pagar.");
         setLoading(false);
@@ -712,7 +660,7 @@ export default () => {
         setSnackbarMessage(response.data.descripcion);
         handleClosePaymentProcess();
         setCantidadPagada(0);
-        fetchClientes();
+        fetchUsuarios();
         handleDetailClose();
         handleTransferenciaModalClose2();
         handleClosePaymentGroupProcess();
@@ -754,8 +702,8 @@ export default () => {
     const sortedArray = [...array];
     sortedArray.sort((a, b) => {
       let comparison = 0;
-      if (field === "rut") {
-        comparison = compareRut(a.rut, b.rut);
+      if (field === "codigoUsuario") {
+        comparison = compareRut(a.codigoUsuario, b.codigoUsuario);
       } else if (field === "folio" || field === "total") {
         comparison = compareNumerical(parseInt(a[field]), parseInt(b[field]));
       } else if (field === "fecha") {
@@ -768,25 +716,25 @@ export default () => {
     return sortedArray;
   };
 
-  const handleToggle = (rut) => {
+  const handleToggle = (codigoUsuario) => {
     setOpenGroups((prev) => ({
       ...prev,
-      [rut]: !prev[rut],
+      [codigoUsuario]: !prev[codigoUsuario],
     }));
   };
 
-  const groupedData = proveedores.reduce((acc, item) => {
-    if (!acc[item.rut]) {
-      acc[item.rut] = [];
+  const groupedData = deudas.reduce((acc, item) => {
+    if (!acc[item.codigoUsuario]) {
+      acc[item.codigoUsuario] = [];
     }
-    acc[item.rut].push(item);
+    acc[item.codigoUsuario].push(item);
     return acc;
   }, {});
 
-  const filteredGroupKeys = Object.keys(groupedData).filter((rut) =>
-    rut.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredGroupKeys = Object.keys(groupedData).filter((codigoUsuario) =>
+    codigoUsuario.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const sortedGroupKeys = sortData(filteredGroupKeys, "rut", order.direction);
+  const sortedGroupKeys = sortData(filteredGroupKeys, "codigoUsuario", order.direction);
   // const sortedGroupKeys = sortData(
   //   Object.keys(groupedData),
   //   "rut",
@@ -808,60 +756,6 @@ export default () => {
 
     // Previene espacios iniciales y al final de la cadena
     if (key === " " && (input.length === 0 || input.endsWith(" "))) {
-      event.preventDefault();
-    }
-  };
-
-  const handleTextKeyDown = (event) => {
-    const key = event.key;
-    const input = event.target.value;
-
-    // Verifica si el carácter es alfanumérico o uno de los caracteres permitidos
-    if (
-      !/^[a-zA-Z0-9]$/.test(key) && // letras y números
-      key !== " " && // espacio
-      key !== "Backspace" && // backspace
-      key !== "Delete" // delete
-    ) {
-      event.preventDefault();
-    }
-
-    // Previene espacios iniciales y al final de la cadena
-    if (key === " " && (input.length === 0 || input.endsWith(" "))) {
-      event.preventDefault();
-    }
-  };
-  const handleEmailKeyDown = (event) => {
-    const charCode = event.which ? event.which : event.keyCode;
-
-    // Prevenir espacios en cualquier parte del correo
-    if (charCode === 32) {
-      // 32 es el código de la tecla espacio
-      event.preventDefault();
-    }
-  };
-  const handleRUTKeyDown = (event) => {
-    const key = event.key;
-    const input = event.target.value;
-
-    // Permitir números (0-9), guion (-), backspace y delete
-    if (
-      !isNaN(key) || // números
-      key === "Backspace" || // backspace
-      key === "Delete" || // delete
-      (key === "-" && !input.includes("-")) // guion y no hay guion previamente
-    ) {
-      // Permitir la tecla
-    } else {
-      // Prevenir cualquier otra tecla
-      event.preventDefault();
-    }
-
-    // Prevenir espacios iniciales y asegurar que el cursor no esté en la posición inicial
-    if (
-      key === " " &&
-      (input.length === 0 || event.target.selectionStart === 0)
-    ) {
       event.preventDefault();
     }
   };
@@ -903,12 +797,11 @@ export default () => {
             <TableHead>
               <TableRow>
                 <TableCell></TableCell>
-                <TableCell>RUT</TableCell>
-
-                <TableCell>Razon Social</TableCell>
+                <TableCell>Codigo Usuario</TableCell>
+                <TableCell>Nombre</TableCell>
                 <TableCell>Documentos</TableCell>
                 <TableCell></TableCell>
-                <TableCell></TableCell>
+                {/* <TableCell></TableCell> */}
               </TableRow>
             </TableHead>
             <TableCell>
@@ -918,60 +811,60 @@ export default () => {
 
             <TableCell></TableCell>
             <TableBody>
-              {sortedGroupKeys.map((rut) => (
-                <React.Fragment key={rut}>
+              {sortedGroupKeys.map((codigoUsuario) => (
+                <React.Fragment key={codigoUsuario}>
                   <TableRow>
                     <TableCell>
-                      <IconButton onClick={() => handleToggle(rut)}>
-                        {openGroups[rut] ? (
+                      <IconButton onClick={() => handleToggle(codigoUsuario)}>
+                        {openGroups[codigoUsuario] ? (
                           <ExpandLessIcon />
                         ) : (
                           <ExpandMoreIcon />
                         )}
                       </IconButton>
                     </TableCell>
-                    <TableCell>{rut}</TableCell>
+                    <TableCell>{codigoUsuario}</TableCell>
                     <TableCell>
-                      <strong>{groupedData[rut][0].razonSocial}</strong>
+                      <strong>{groupedData[codigoUsuario][0].nombreApellidoOperador}</strong>
                     </TableCell>
                     <TableCell>
                       Facturas:{" "}
                       {
-                        groupedData[rut].filter(
+                        groupedData[codigoUsuario].filter(
                           (item) => item.descripcionComprobante === "Factura"
                         ).length
                       }
                       <br />
                       Boletas:{" "}
                       {
-                        groupedData[rut].filter(
+                        groupedData[codigoUsuario].filter(
                           (item) => item.descripcionComprobante === "Boleta"
                         ).length
                       }
                       <br />
                       Tickets:{" "}
                       {
-                        groupedData[rut].filter(
+                        groupedData[codigoUsuario].filter(
                           (item) => item.descripcionComprobante === "Ticket"
                         ).length
                       }
                     </TableCell>
                     <TableCell>
                       $
-                      {groupedData[rut]
+                      {groupedData[codigoUsuario]
                         .reduce((sum, item) => sum + item.total, 0)
                         .toLocaleString("es-ES")}
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <Button
                         sx={{ width: "80%" }}
                         variant="contained"
                         color="secondary"
-                        onClick={() => handlePagarOpen(rut)}
+                        onClick={() => handlePagarOpen(codigoUsuario)}
                       >
                         Pagar
                       </Button>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                   <TableRow>
                     <TableCell
@@ -979,7 +872,7 @@ export default () => {
                       style={{ paddingBottom: 0, paddingTop: 0 }}
                     >
                       <Collapse
-                        in={openGroups[rut]}
+                        in={openGroups[codigoUsuario]}
                         timeout="auto"
                         unmountOnExit
                       >
@@ -987,7 +880,7 @@ export default () => {
                           <Table size="small">
                             <TableHead>
                               <TableRow>
-                                <TableCell>Razon Social</TableCell>
+                                <TableCell>Nombre</TableCell>
                                 <TableCell>Tipo Documento</TableCell>
                                 <TableCell
                                   onClick={() => handleSort("nroComprobante")}
@@ -1066,12 +959,12 @@ export default () => {
                             </TableHead>
                             <TableBody>
                               {sortData(
-                                groupedData[rut],
+                                groupedData[codigoUsuario],
                                 order.field,
                                 order.direction
                               ).map((item) => (
                                 <TableRow key={item.id}>
-                                  <TableCell>{item.razonSocial}</TableCell>
+                                  <TableCell>{item.nombreApellidoOperador}</TableCell>
                                   <TableCell>
                                     {item.descripcionComprobante}
                                   </TableCell>
@@ -1082,7 +975,7 @@ export default () => {
                                     )}
                                   </TableCell>
                                   <TableCell>
-                                    ${item.total.toLocaleString("es-CL")}
+                                    ${System.formatMonedaLocal(item.total, false)}
                                   </TableCell>
                                   <TableCell>
                                     <Button
@@ -1113,7 +1006,7 @@ export default () => {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle>Detalles del Cliente</DialogTitle>
+        <DialogTitle>Detalles</DialogTitle>
         <DialogContent dividers>
           {selectedItem && (
             <div>
@@ -1131,9 +1024,9 @@ export default () => {
                   </Box>
                   <Box sx={{ flex: 1 }}>
                     <Typography variant="body2" sx={{ color: "#696c6f" }}>
-                      ID: {selectedItem.razonSocial}
+                      ID: {selectedItem.nombreApellidoOperador}
                       <br />
-                      {selectedItem.rut}
+                      {selectedItem.codigoUsuario}
                     </Typography>
                   </Box>
                   <Grid item xs={12}></Grid>
@@ -1152,21 +1045,21 @@ export default () => {
                   <TableBody>
                     <TableRow>
                       <TableCell>
-                        {dayjs(selectedItem.fecha).format("DD-MM-YYYY")}
+                        {System.formatDateServer(selectedItem.fecha)}
                       </TableCell>
                       <TableCell>
                         {selectedItem.descripcionComprobante}
                       </TableCell>
                       <TableCell>{selectedItem.nroComprobante}</TableCell>
-                      <TableCell>${selectedItem.total}</TableCell>
+                      <TableCell>${System.formatMonedaLocal(selectedItem.total, false)}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
               </TableContainer>
-              <Typography variant="h6" style={{ marginTop: "16px" }}>
+              {/* <Typography variant="h6" style={{ marginTop: "16px" }}>
                 Detalles de Compra:
-              </Typography>
-              <TableContainer>
+              </Typography> */}
+              {/* <TableContainer>
                 <Table>
                   <TableHead>
                     <TableRow>
@@ -1188,7 +1081,7 @@ export default () => {
                       ))}
                   </TableBody>
                 </Table>
-              </TableContainer>
+              </TableContainer> */}
               <Box
                 display="flex"
                 justifyContent="space-between"
@@ -1196,7 +1089,7 @@ export default () => {
                 mt={2}
               >
                 <Typography variant="h6">
-                  Total Deuda : ${selectedItem.total}
+                  Total Deuda : ${System.formatMonedaLocal(selectedItem.total, false)}
                 </Typography>
                 <Button
                   variant="contained"
@@ -1204,7 +1097,7 @@ export default () => {
                   // onClick={handleOpenPaymentProcess}
                   onClick={() => handleOpenPaymentProcess()}
                 >
-                  Pagar Total $ ({selectedItem.total})
+                  Pagar Total $ ({System.formatMonedaLocal(selectedItem.total, false)})
                 </Button>
               </Box>
             </div>
@@ -1225,13 +1118,13 @@ export default () => {
       >
         <DialogTitle>Pagos del Cliente</DialogTitle>
         <DialogContent dividers>
-          {groupedProveedores.length > 0 && (
+          {groupedDeudas.length > 0 && (
             <div>
               <Typography variant="h6">
-                Proveedor: {groupedProveedores[0].razonSocial}
+                Proveedor: {groupedDeudas[0].nombreApellidoOperador}
               </Typography>
               <Typography variant="subtitle1">
-                RUT: {groupedProveedores[0].rut}
+                RUT: {groupedDeudas[0].codigoUsuario}
               </Typography>
               <Typography variant="h6" style={{ marginTop: "16px" }}>
                 Compras:
@@ -1244,7 +1137,7 @@ export default () => {
                         <Checkbox
                           indeterminate={
                             selectedIds.length > 0 &&
-                            selectedIds.length < groupedProveedores.length
+                            selectedIds.length < groupedDeudas.length
                           }
                           checked={allSelected}
                           onChange={handleSelectAll}
@@ -1257,7 +1150,7 @@ export default () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {groupedProveedores.map((proveedor) => (
+                    {groupedDeudas.map((proveedor) => (
                       <TableRow key={proveedor.id}>
                         <TableCell padding="checkbox">
                           <Checkbox
@@ -1414,7 +1307,7 @@ export default () => {
                     setCantidadPagada(
                       paymentOrigin === "detalleProveedor"
                         ? selectedProveedor.total
-                        : groupedProveedores.reduce(
+                        : groupedDeudas.reduce(
                           (acc, proveedor) => acc + proveedor.total,
                           0
                         )
@@ -1568,7 +1461,7 @@ export default () => {
                 </Button>
               </Grid>
 
-              <Grid item xs={12} sm={12} md={12}>
+              {/* <Grid item xs={12} sm={12} md={12}>
                 <Button
                   sx={{ height: "100%" }}
                   id="credito-btn"
@@ -1578,7 +1471,7 @@ export default () => {
                     setCantidadPagada(
                       paymentOrigin === "detalleProveedor"
                         ? selectedProveedor.total
-                        : groupedProveedores.reduce(
+                        : groupedDeudas.reduce(
                           (acc, proveedor) => acc + proveedor.total,
                           0
                         )
@@ -1590,8 +1483,8 @@ export default () => {
                 >
                   CHEQUE
                 </Button>
-              </Grid>
-              <Grid item xs={12} sm={12} md={12}>
+              </Grid> */}
+              {/* <Grid item xs={12} sm={12} md={12}>
                 <Button
                   id="transferencia-btn"
                   fullWidth
@@ -1606,7 +1499,7 @@ export default () => {
                 >
                   Transferencia
                 </Button>
-              </Grid>
+              </Grid> */}
               <Grid item xs={12} sm={12}>
                 <Button
                   sx={{ height: "100%" }}

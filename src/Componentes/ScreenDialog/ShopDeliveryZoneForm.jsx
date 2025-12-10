@@ -82,17 +82,17 @@ export default function ({
         showMessage(error)
       })
     } else {
-      Shop.editZoneToCommerce(infoComercio, info, (res) => {
-        hideLoading()
-        showMessage("Realizado correctamente");
-        setTimeout(() => {
-          onSave(info)
-          setOpenDialog(false)
-        }, 2000);
-      }, (error) => {
-        hideLoading()
-        showMessage(error)
-      })
+      // Shop.editZoneToCommerce(infoComercio, info, (res) => {
+      //   hideLoading()
+      //   showMessage("Realizado correctamente");
+      //   setTimeout(() => {
+      //     onSave(info)
+      //     setOpenDialog(false)
+      //   }, 2000);
+      // }, (error) => {
+      //   hideLoading()
+      //   showMessage(error)
+      // })
     }
   };
 

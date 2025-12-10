@@ -82,10 +82,10 @@ const InputNumber = ({
       setKeyPressed(true)
       return
     }
-    console.log("checkKeyDown")
-    console.log("isDecimal", isDecimal)
-    console.log("Validator.isDecimal(" + event.key + ")", Validator.isDecimal(event.key))
-    console.log("Validator.isNumeric(" + event.key + ")", Validator.isNumeric(event.key))
+    // console.log("checkKeyDown")
+    // console.log("isDecimal", isDecimal)
+    // console.log("Validator.isDecimal(" + event.key + ")", Validator.isDecimal(event.key))
+    // console.log("Validator.isNumeric(" + event.key + ")", Validator.isNumeric(event.key))
 
     if (readonly || (!canAutoComplete && event.key == "Unidentified")) {
       event.preventDefault();
@@ -107,7 +107,7 @@ const InputNumber = ({
       return false
     }
 
-    console.log("pasa bien")
+    // console.log("pasa bien")
   }
 
   const checkChange = (event) => {

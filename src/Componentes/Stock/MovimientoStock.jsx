@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Grid, Paper } from "@mui/material";
 import { SelectedOptionsContext } from "../Context/SelectedOptionsProvider";
 import InputNumber from "../Elements/Compuestos/InputNumber";
@@ -14,11 +14,17 @@ import User from "../../Models/User";
 import Stock from "../../Models/Stock";
 import SmallButton from "../Elements/SmallButton";
 import InputName from "../Elements/Compuestos/InputName";
+import ModalLogin from "../ScreenDialog/ModalLogin";
 
-const MovimientoStock = ({ onClose }) => {
+const MovimientoStock = ({
+  onClose,
+  product = null,
+  onUpdate = (sentInfo) => { }
+}) => {
   const {
     showLoading,
     hideLoading,
+    showAlert,
     showMessage
   } = useContext(SelectedOptionsContext);
 
@@ -35,6 +41,7 @@ const MovimientoStock = ({ onClose }) => {
   }
 
   const [selectedProduct, setSelectedProduct] = useState(null); // Para almacenar el producto seleccionado
+  const [showLogin, setShowLogin] = useState(false); // Para almacenar el producto seleccionado
 
   const handleProductSelect = (product) => {
     // Actualizar el estado del stockSistema y almacenar el producto seleccionado
@@ -58,39 +65,48 @@ const MovimientoStock = ({ onClose }) => {
     }
     // Validar antes de enviar
 
-    var nuevaCantidad = parseFloat(selectedProduct.stockActual)
+    var nuevaCantidad = parseFloat(selectedProduct.stockActual + 0)
     if (states.entradaSalida[0] == "entrada") {
       nuevaCantidad += parseFloat(states.cantidad[0])
     } else {
       nuevaCantidad -= parseFloat(states.cantidad[0])
     }
 
+    var userInfo = User.getInstance().getFromSesion()
+    var idUsuario = 0
+    if (userInfo) {
+      idUsuario = userInfo.codigoUsuario
+    } else {
+      setShowLogin(true)
+      return
+    }
+
     const data = {
-      "observacion": "AJUSTE INVENTARIO."
-        + states.entradaSalida[0].toUpperCase()
-        + "."
-        + states.descripcion[0].toUpperCase(),
-      "idUsuario": User.getInstance().getFromSesion().codigoUsuario,
+      "tipoAjuste": states.entradaSalida[0].toUpperCase(),
+      "observacion": states.descripcion[0].toUpperCase(),
+      "idUsuario": idUsuario,
       "fechaIngreso": System.getInstance().getDateForServer(),
-      "stockMovimientos": [
+      "stockMovimientoConceptos": [
         {
-          "cantidad": nuevaCantidad,
+          "cantidad": parseFloat(states.cantidad[0] + ""),
+          "stockActual": parseFloat(selectedProduct.stockActual + 0),
+          "stockAjustado": parseFloat(nuevaCantidad.toFixed(2)),
           "codProducto": selectedProduct.idProducto + ""
         }
       ]
     }
 
 
-
     console.log("Datos antes de enviar:", data)
     showLoading("Enviando...");
-    Stock.ajusteInventario(
+    Stock.movimientoEntradaSalida(
       data,
       (res) => {
         hideLoading();
         showMessage("realizado exitosamente");
         setTimeout(() => {
           onClose();
+          onUpdate(data);
         }, 1000);
       },
       (error) => {
@@ -100,9 +116,28 @@ const MovimientoStock = ({ onClose }) => {
     );
   };
 
+  useEffect(() => {
+    if (product) {
+      setSelectedProduct(product)
+    }
+  }, [product])
+
   return (
     <Paper elevation={16} square sx={{ padding: "2%" }}>
       <Grid container spacing={2}>
+
+        <ModalLogin
+          onSuccess={(userOk) => {
+            User.getInstance().saveInSesion(userOk)
+            setTimeout(() => {
+              handleSubmit()
+            }, 300);
+          }}
+          openDialog={showLogin}
+          setOpenDialog={() => { setShowLogin(false) }}
+        />
+
+
         <Grid item xs={12}>
           <h2>Movimiento stock {states.entradaSalida[0]}</h2>
         </Grid>

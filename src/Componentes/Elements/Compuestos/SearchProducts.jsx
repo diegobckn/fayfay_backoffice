@@ -31,7 +31,8 @@ const SearchProducts = ({
   onProductSelect,
   labelInput = "Buscar producto...",
   textButton = "Buscar",
-  focus = true
+  focus = true,
+  agregarSiEsUnico = false
 }) => {
   const { showLoading, hideLoading } = useContext(SelectedOptionsContext);
   const apiUrl = ModelConfig.get().urlBase;
@@ -65,9 +66,14 @@ const SearchProducts = ({
         pagina: 1, // Pagina 1 para la busqueda
       },
       (prods) => {
-        setFilteredProducts(prods); // Actualiza los productos filtrados
         hideLoading();
         setSearched(true); // Marca que se ha realizado una búsqueda
+        if (agregarSiEsUnico && prods.length == 1) {
+          handleAddProduct(prods[0])
+          setFilteredProducts([]); // Actualiza los productos filtrados
+        } else {
+          setFilteredProducts(prods); // Actualiza los productos filtrados
+        }
       },
       () => {
         hideLoading();
@@ -196,7 +202,7 @@ const SearchProducts = ({
                             align="center"
                             sx={{ padding: "6px", fontSize: "14px" }}
                           >
-                            <strong>{prod.nombre}</strong>
+                            <strong> {prod.nombre} <br /> #{prod.idProducto}</strong>
                           </TableCell>
                         </TableRow>
                       </TableBody>

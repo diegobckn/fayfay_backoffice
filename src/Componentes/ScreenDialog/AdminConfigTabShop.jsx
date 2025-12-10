@@ -495,7 +495,7 @@ const AdminConfigTabShop = ({
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                   <SmallSecondaryButton
-                    textButton={"Tarifas de repartidores"}
+                    textButton={"Tarifas de envios"}
                     style={{ width: "100%" }}
                     actionButton={() => setShowZones(true)}
                   />

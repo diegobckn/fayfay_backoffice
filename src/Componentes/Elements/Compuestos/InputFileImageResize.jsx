@@ -6,8 +6,7 @@ import {
   InputLabel,
   Button,
   Typography,
-  Tooltip,
-  Grid
+  Tooltip
 } from "@mui/material";
 import { SelectedOptionsContext } from "../../Context/SelectedOptionsProvider";
 import ModelConfig from "../../../Models/ModelConfig";
@@ -17,7 +16,7 @@ import Validator from "../../../Helpers/Validator";
 import System from "../../../Helpers/System";
 
 
-const InputFile = ({
+export default ({
   inputState,
   validationState,
   withLabel = true,
@@ -160,8 +159,7 @@ const InputFile = ({
       <div style={{
         backgroundColor: "#f0f0f0",
         marginTop: "25px",
-        width: (System.isMobile() ? "100%" : ""),
-        // border: (System.isMobile() ? "" : "1px solid #989898"),
+        // border: "1px solid #989898",
         height: "56px",
         display: "flex",
         flexDirection: "row",
@@ -195,7 +193,8 @@ const InputFile = ({
           <Button sx={{
             border: "1px solid rgb(184 187 189)",
             backgroundColor: "#e7fffd",
-            marginLeft: "4px",
+            width: (System.isMobile() ? "100%" : undefined),
+            marginLeft: (!System.isMobile() ? "4px" : undefined),
             color: "#3d3c3c",
             // marginTop:"25px",
             "&:hover": {
@@ -227,10 +226,10 @@ const InputFile = ({
               <Tooltip title={fileName}>
                 <div style={{
                   display: "inline-block",
-                  width: (System.isMobile() ? "100%" : ""),
                   marginRight: "10px",
                   marginLeft: "4px",
                   padding: "10px",
+                  marginTop: (System.isMobile() ? "30px" : undefined),
                   cursor: "default",
                   // border: "1px solid #cbcbcb"
                   // backgroundColor:"red"
@@ -240,7 +239,6 @@ const InputFile = ({
                     color: "#06AD16",
                     marginRight: "10px"
                   }} />
-
 
 
                   <Typography sx={{
@@ -254,7 +252,6 @@ const InputFile = ({
               <Button sx={{
                 border: "1px solid rgb(184 187 189)",
                 backgroundColor: "#e7fffd",
-                width: (System.isMobile() ? "100%" : undefined),
                 color: "#3d3c3c",
                 // marginTop:"25px",
                 "&:hover": {
@@ -273,7 +270,7 @@ const InputFile = ({
                   color: "#3F08D7",
                   marginRight: "10px"
                 }} />
-                Cambiar
+                {fileInputLabel}
               </Button>
 
               {canDelete && (
@@ -310,12 +307,12 @@ const InputFile = ({
                 </Button>
               )}
 
-            </div>
-          )}
+            </div >
+          )
+        }
 
-      </div>
+      </div >
     </>
   );
 };
 
-export default InputFile;

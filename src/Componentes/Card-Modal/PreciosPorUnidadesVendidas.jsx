@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Paper,
   Grid,
@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogContent,
   Icon,
+  DialogActions,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -40,6 +41,11 @@ import SearchProducts from "../Elements/Compuestos/SearchProducts";
 import { Box } from "@mui/system";
 import UNIDADES from "../../definitions/Unidades";
 import SmallSecondaryButton from "../Elements/SmallSecondaryButton";
+import FormRangoPrecio from "../ScreenDialog/FormRangoPrecio";
+import { SelectedOptionsContext } from "../Context/SelectedOptionsProvider";
+import Product from "../../Models/Product";
+import ModelConfig from "../../Models/ModelConfig";
+
 
 const VALOR_APLICAR = [
   "Aumento",
@@ -51,22 +57,22 @@ export default ({
   setOpendialog = (x) => { }
 }) => {
 
+  const {
+    showLoading,
+    hideLoading,
+    showLoadingDialog,
+    showMessage,
+    showConfirm,
+  } = useContext(SelectedOptionsContext);
+
 
   const [selectedProduct, setSelectedProduct] = useState(null)
+  const [showFormPrecio, setShowFormPrecio] = useState(null)
 
-  const inputs = {
-    aplica: useState(0),
-    listaSelec: useState(-1),
-    porcentaje: useState(0),
-    monto: useState(0),
-  }
+  const [editandoPrecio, setEditandoPrecio] = useState(false)
+  const [indexEditando, setIndexEditando] = useState(null)
 
-  const validations = {
-    aplica: useState(null),
-    listaSelec: useState(null),
-    porcentaje: useState(null),
-    monto: useState(null),
-  }
+  const [precios, setPrecios] = useState([])
 
   const buscarUnidad = (idUnidad) => {
     var enc = null
@@ -83,6 +89,50 @@ export default ({
     }
   }
 
+  const quitar = (index) => {
+    const copiaPrecios = System.clone(precios)
+
+    copiaPrecios.splice(index, 1)
+    setPrecios(copiaPrecios)
+    const copiaProd = System.clone(selectedProduct)
+    copiaProd.mostrarPrecioRangos = copiaPrecios
+    setSelectedProduct(copiaProd)
+    // console.log("queda asi", copiaProd)
+  }
+  const guardarCambios = () => {
+    showLoading("Guardando...")
+
+    const arrayPrecios = precios.map((itemPrecio) => {
+      return {
+        "codBarra": selectedProduct.idProducto,
+        "codigoSucursal": 0,
+        "puntoVenta": "0",
+        "fechaIngreso": System.getInstance().getDateForServer(),
+        "cantidadDesde": parseFloat(itemPrecio.cantidadDesde),
+        "cantidadHasta": parseFloat(itemPrecio.cantidadHasta),
+        "precioVenta": parseFloat(itemPrecio.precioVenta)
+      }
+    })
+    Product.crearRangoPrecios(arrayPrecios, () => {
+      hideLoading()
+      setSelectedProduct(null)
+    }, (er) => {
+      hideLoading()
+      showMessage(er)
+    })
+
+
+  }
+
+  useEffect(() => {
+    // console.log("cambio selectedProduct", selectedProduct)
+    if (selectedProduct) {
+      setPrecios(selectedProduct.mostrarPrecioRangos)
+    } else {
+      setPrecios([])
+    }
+  }, [selectedProduct])
+
   return (<Dialog open={openDialog} onClose={() => setOpendialog(false)} fullWidth maxWidth={"lg"}>
     <DialogTitle>Precios por unidades vendidas</DialogTitle>
     <DialogContent>
@@ -93,10 +143,13 @@ export default ({
           <Grid item xs={12} sm={12} md={12} lg={12}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={12} md={12} lg={12}>
-                <SearchProducts onProductSelect={(prod) => {
-                  setSelectedProduct(prod)
-                  console.log("prod", prod)
-                }} />
+                <SearchProducts
+                  onProductSelect={(prod) => {
+                    setSelectedProduct(prod)
+                    // console.log("prod", prod)
+                  }}
+                  agregarSiEsUnico={true}
+                />
               </Grid>
             </Grid>
           </Grid>
@@ -128,6 +181,11 @@ export default ({
                         <TableCell>Descripcion</TableCell>
                         <TableCell>Unidad Venta</TableCell>
                         <TableCell>Precio Costo</TableCell>
+                        <TableCell>
+                          Precio venta
+                          <br />
+                          de unidad
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -136,6 +194,7 @@ export default ({
                         <TableCell>{selectedProduct.nombre}</TableCell>
                         <TableCell>{buscarUnidad(selectedProduct.unidad)}</TableCell>
                         <TableCell>${System.formatMonedaLocal(selectedProduct.precioCosto)}</TableCell>
+                        <TableCell>${System.formatMonedaLocal(selectedProduct.precioVenta)}</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
@@ -146,7 +205,40 @@ export default ({
 
 
               <Grid item xs={12} sm={12} md={12} lg={12}>
-                <br /><br />
+                <br />
+                <br />
+                <SmallButton textButton={"Agregar"} actionButton={() => {
+                  setEditandoPrecio(false)
+                  setIndexEditando(null)
+                  setShowFormPrecio(true)
+                }} />
+
+                <FormRangoPrecio
+                  openDialog={showFormPrecio}
+                  setOpenDialog={setShowFormPrecio}
+                  product={selectedProduct}
+                  onComplete={(itemForm) => {
+                    // console.log("onComplete..itemForm", itemForm)
+                    const copiaPrecios = System.clone(precios)
+                    if (editandoPrecio && indexEditando !== null) {
+                      copiaPrecios[indexEditando] = itemForm
+                    } else {
+                      copiaPrecios.push(itemForm)
+                    }
+                    setPrecios(copiaPrecios)
+
+                    const copiaProd = System.clone(selectedProduct)
+                    copiaProd.mostrarPrecioRangos = copiaPrecios
+                    setSelectedProduct(copiaProd)
+
+                    // console.log("queda asi", copiaProd)
+                  }}
+                  isEdit={editandoPrecio}
+                  indexEdit={indexEditando}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={12} md={12} lg={12}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={12} md={8} lg={8}>
                     <Table sx={{ border: "1px ", borderRadius: "8px" }}>
@@ -159,17 +251,23 @@ export default ({
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        <TableRow>
-                          <TableCell>1</TableCell>
-                          <TableCell>10</TableCell>
-                          <TableCell>${System.formatMonedaLocal(4000)}</TableCell>
-                          <TableCell>
-
-                            <SmallButton textButton={"Quitar"} actionButton={() => {
-                              console.log("quitar")
-                            }} />
-                          </TableCell>
-                        </TableRow>
+                        {precios.map((precio, ix) => (
+                          <TableRow key={ix}>
+                            <TableCell>{precio.cantidadDesde}</TableCell>
+                            <TableCell>{precio.cantidadHasta}</TableCell>
+                            <TableCell>${System.formatMonedaLocal(precio.precioVenta)}</TableCell>
+                            <TableCell>
+                              <SmallSecondaryButton textButton={"Editar"} actionButton={() => {
+                                setEditandoPrecio(true)
+                                setIndexEditando(ix)
+                                setShowFormPrecio(true)
+                              }} />
+                              <SmallButton textButton={"Quitar"} actionButton={() => {
+                                quitar(ix)
+                              }} />
+                            </TableCell>
+                          </TableRow>
+                        ))}
                       </TableBody>
                     </Table>
                   </Grid>
@@ -182,12 +280,9 @@ export default ({
               <br />
               <br />
               <SmallSecondaryButton
-                textButton={"Guardar cambios"} actionButton={() => {
-                  console.log("quitar")
-                }} />
-              <SmallDangerButton
-                textButton={"salir sin guardar"} actionButton={() => {
-                  console.log("quitar")
+                textButton={"Guardar cambios"}
+                actionButton={() => {
+                  guardarCambios()
                 }} />
             </Grid>
           </Grid>
@@ -198,6 +293,22 @@ export default ({
 
 
     </DialogContent >
+    <DialogActions >
+      <Button
+        onClick={() => {
+
+          if (precios.length > 1 || (precios.length && precios[0].cantidadDesde != 0)) {
+            showConfirm("Salir sin guardar?", () => {
+              setOpendialog(false)
+            })
+          } else {
+            setOpendialog(false)
+          }
+        }}
+      >
+        Atras
+      </Button>
+    </DialogActions >
 
 
 

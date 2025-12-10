@@ -31,6 +31,7 @@ import '../node_modules/@fontsource/roboto/400.css';
 import '../node_modules/@fontsource/roboto/500.css';
 import '../node_modules/@fontsource/roboto/700.css';
 import ReportesClientes from './Pages/ReportesClientes';
+import ReportesUsuarios from './Pages/ReportesUsuarios';
 import ReportesCtaCorriente from './Pages/ReportesCtaCorriente';
 import ReportesCtaCorrienteProv from './Pages/ReportesCtaCorrienteProv';
 import ReporteProductosStockCritico from './Pages/ReporteProductosStockCritico';
@@ -38,6 +39,7 @@ import ReporteCostoGanancia from './Pages/ReporteCostoGanancia';
 import RankingVentas from './Pages/RankingVentas';
 import RankingProductos from './Pages/RankingProductos';
 import RankingLibroVentas from './Pages/RankingLibroVentas';
+import RankingLibroVentasProducto from './Pages/RankingLibroVentasProducto';
 import RankingLibroCompras from './Pages/RankingLibroCompras';
 import ReporteMaestroProductos from './Pages/ReporteMaestroProductos';
 import Stock from './Pages/Stock/';
@@ -88,6 +90,7 @@ function App() {
             <Route path="/clientes" element={<Clientes />} />
             <Route path="/clientes/crear-por-qr" element={<CrearClienteQr />} />
             <Route path="/clientes/reportes" element={<ReportesClientes />} />
+            <Route path="/usuarios/reportes" element={<ReportesUsuarios />} />
             <Route path="/productos" element={<Productos />} />
             <Route path="/productos/categorias" element={<Categorias />} />
             <Route path="/productos/subcategorias" element={<SubCategorias />} />
@@ -103,6 +106,7 @@ function App() {
             <Route path="reportes/movstock" element={<ReporteMovStock />} />
             <Route path="reportes/rankingproductos" element={<RankingProductos />} />
             <Route path="reportes/rankinglibroventas" element={<RankingLibroVentas />} />
+            <Route path="reportes/rankinglibroventasproducto" element={<RankingLibroVentasProducto />} />
             <Route path="reportes/stockcriticos" element={<ReporteProductosStockCritico />} />
             <Route path="reportes/costosganancias" element={<ReporteCostoGanancia />} />
             <Route path="reportes/rankinglibrocompras" element={<RankingLibroCompras />} />
