@@ -93,7 +93,6 @@ export default function PermanentDrawerLeft() {
           ],
         },
         { text: "Precios", link: "/precios", icon: <PriceChangeIcon /> },
-        { text: "Asig Precios", link: "/asigprecios", icon: <PriceChangeIcon /> },
         {
           text: "Proveedores",
           link: "/proveedores",

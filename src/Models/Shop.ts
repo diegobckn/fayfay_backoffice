@@ -6,6 +6,7 @@ import ModelConfig from './ModelConfig.ts';
 import ModelSingleton from './ModelSingleton.ts';
 import EndPoint from './EndPoint.ts';
 import SoporteTicket from './SoporteTicket.ts';
+import System from '../Helpers/System.ts';
 
 
 class Shop extends ModelSingleton {
@@ -14,11 +15,15 @@ class Shop extends ModelSingleton {
     static async prepare(infoComercio: any, callbackOk: any, callbackWrong: any) {
         // const configs = ModelConfig.get()
         var url = "https://softus.com.ar/easypos/create-or-search-shop-from-commerce"
-
         const ant = SoporteTicket.reportarError
         SoporteTicket.reportarError = false
         EndPoint.sendPost(url, infoComercio, (responseData: any, response: any) => {
-            callbackOk(responseData, response);
+            // console.log("prepare..responseData..", responseData)
+            if (typeof (responseData.info) == "string") {
+                callbackWrong(responseData.info);
+            } else {
+                callbackOk(responseData, response);
+            }
             SoporteTicket.reportarError = ant
         }, (err: any) => {
             callbackWrong(err)

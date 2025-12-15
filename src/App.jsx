@@ -14,7 +14,6 @@ import Login from './Pages/Login';
 import Usuarios from './Pages/Usuarios';
 import Sucursales from './Pages/Sucursales';
 import Precios from './Pages/Precios';
-import AsigPrecios from './Pages/AsigPrecios';
 import Proveedores from './Pages/proveedores/Proveedores';
 import Productos from './Pages/Productos';
 import Clientes from './Pages/Clientes';
@@ -85,7 +84,6 @@ function App() {
             <Route path="/sucursales/preventa" element={<Preventa />} />
             <Route path="/sucursales/pasarelapago" element={<PasarelaPago />} />
             <Route path="/precios" element={<Precios />} />
-            <Route path="/asigprecios" element={<AsigPrecios />} />
             <Route path="/proveedores" element={<Proveedores />} />
             <Route path="/clientes" element={<Clientes />} />
             <Route path="/clientes/crear-por-qr" element={<CrearClienteQr />} />
