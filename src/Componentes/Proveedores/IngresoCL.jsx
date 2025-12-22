@@ -30,7 +30,10 @@ const IngresoCL = ({
   openDialog,
   setOpendialog,
   onExist = (rut) => { },
-  titulo = "Ingreso Clientes"
+  titulo = "Ingreso Clientes",
+  isEdit = false,
+  editData = null,
+  onSave = (data) => { }
 }) => {
   const { showLoading, hideLoading, showLoadingDialog, showMessage } =
     useContext(SelectedOptionsContext);
@@ -41,7 +44,7 @@ const IngresoCL = ({
     apellido: useState(""),
     correo: useState(""),
     razonSocial: useState(""),
-    phone: useState(""),
+    telefono: useState(""),
     direccion: useState(""),
     region: useState(-1),
     comuna: useState(-1),
@@ -56,7 +59,7 @@ const IngresoCL = ({
     apellido: useState(null),
     correo: useState(null),
     razonSocial: useState(null),
-    phone: useState(null),
+    telefono: useState(null),
     direccion: useState(null),
     region: useState(null),
     comuna: useState(null),
@@ -70,12 +73,13 @@ const IngresoCL = ({
       return false;
     }
     const cliente = {
+      codigoCliente: (editData ? editData.codigoCliente : 0),
       rut: states.rut[0],
       nombre: states.nombre[0],
       apellido: states.apellido[0],
       correo: states.correo[0],
       razonSocial: states.razonSocial[0],
-      telefono: states.phone[0],
+      telefono: states.telefono[0],
       direccion: states.direccion[0],
       region: states.region[0] + "",
       comuna: states.comuna[0] + "",
@@ -86,14 +90,18 @@ const IngresoCL = ({
 
     console.log("Datos antes de enviar:", cliente);
     showLoading("Enviando...");
-    Client.getInstance().create(
+
+
+    const accion = (isEdit && editData ? Client.getInstance().edit : Client.getInstance().create)
+    accion(
       cliente,
       (res) => {
         console.log("llego al callok");
         hideLoading();
-        showMessage("Cliente creado exitosamente");
+        showMessage("Informacion guardada exitosamente");
         setTimeout(() => {
           onClose();
+          onSave(cliente)
         }, 2000);
       },
       (error) => {
@@ -103,6 +111,26 @@ const IngresoCL = ({
       }
     );
   };
+
+  useEffect(() => {
+    if (!openDialog) return
+    // console.log("algun cambio")
+    console.log("editData", editData)
+    if (isEdit && editData) {
+      states.rut[1](editData.rut || "");
+      states.nombre[1](editData.nombre || "");
+      states.apellido[1](editData.apellido || "");
+      states.correo[1](editData.correo || "");
+      states.telefono[1](editData.telefono || "");
+      states.direccion[1](editData.direccion || "");
+      states.region[1](parseInt(editData.region) || "");
+      states.comuna[1](editData.comuna || "");
+      states.giro[1](editData.giro || "");
+      states.razonSocial[1](editData.razonSocial || "");
+      states.formaPago[1](editData.formaPago || "");
+      states.urlPagina[1](editData.urlPagina || "");
+    }
+  }, [openDialog]);
 
   return (
     <Dialog
@@ -115,9 +143,9 @@ const IngresoCL = ({
         onClose();
       }}
       maxWidth={"lg"}
-      >
+    >
       <Paper elevation={16} square sx={{
-      padding: (System.isMobile() ? "20px 15px" : "")
+        padding: (System.isMobile() ? "20px 15px" : "")
       }}>
         <Grid container spacing={2} sx={{ padding: "2%" }}>
           <Grid item xs={12}>
@@ -130,6 +158,7 @@ const IngresoCL = ({
               required={true}
               autoFocus={true}
               onExist={onExist}
+              isEdit={isEdit}
             />
           </Grid>
           <Grid item xs={12} sm={4} md={4}>
@@ -164,7 +193,7 @@ const IngresoCL = ({
           <Grid item xs={12} sm={4} md={4}>
             <InputPhone
               label="Tel&eacute;fono"
-              fieldName="phone"
+              fieldName="telefono"
               vars={[states, validatorStates]}
               required={true}
             />

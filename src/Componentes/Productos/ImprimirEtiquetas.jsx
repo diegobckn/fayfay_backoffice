@@ -27,6 +27,7 @@ import SmallSecondaryButton from "../Elements/SmallSecondaryButton";
 import { SelectedOptionsContext } from "../Context/SelectedOptionsProvider";
 import SearchProducts from "../Elements/Compuestos/SearchProducts";
 import PrinterIframe from "../../Models/PrinterIframe";
+import SmallButton from "../Elements/SmallButton";
 
 export default ({
   openDialog,
@@ -178,6 +179,13 @@ export default ({
 
       </DialogContent>
       <DialogActions>
+
+        <SmallButton
+          isDisabled={productos.length === 0}
+          textButton={"limpiar"}
+          actionButton={() => {
+            setProductos([])
+          }} />
 
         <SmallSecondaryButton
           isDisabled={productos.length === 0}

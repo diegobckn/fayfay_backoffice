@@ -182,13 +182,15 @@ class Product extends Model {
 
     async getAllPaginate({
         pageNumber = 1,
-        rowPage = 10
+        rowPage = 10,
+        sucursal = 0
     }, callbackOk: any, callbackWrong: any) {
         try {
             const configs = ModelConfig.get()
             var url = configs.urlBase + "/ProductosTmp/GetProductosPaginados"
             url += "?pageNumber=" + pageNumber
             url += "&rowPage=" + rowPage
+            url += "&codigoSucursal=" + sucursal
 
             const response = await axios.get(url);
             // console.log("API Response:", response.data);
@@ -294,7 +296,8 @@ class Product extends Model {
         description,
         codigoCliente,
         canPorPagina = 10,
-        pagina = 1
+        pagina = 1,
+        sucursal = 0
     }: any, callbackOk: any, callbackWrong: any) {
         try {
             const configs = ModelConfig.get()
@@ -306,6 +309,7 @@ class Product extends Model {
             url += "&pageNumber=" + pagina
             url += "&rowPage=" + canPorPagina
             url += "&idEmpresa=" + configs.idEmpresa
+            url += "&codigoSucursal=" + sucursal
             const response = await axios.get(url);
             if (
                 response.data.statusCode == 200
@@ -346,7 +350,11 @@ class Product extends Model {
         }
     }
 
-    async findByCodigoBarras({ codigoProducto, codigoCliente }: any, callbackOk: any, callbackWrong: any) {
+    async findByCodigoBarras({
+        codigoProducto,
+        codigoCliente,
+        sucursal = 0
+    }: any, callbackOk: any, callbackWrong: any) {
         try {
             const configs = ModelConfig.get()
             var url = configs.urlBase +
@@ -355,6 +363,7 @@ class Product extends Model {
                 url += "&codigoCliente=" + codigoCliente
             }
             url += "&idEmpresa=" + configs.idEmpresa
+            url += "&codigoSucursal=" + sucursal
 
             const response = await axios.get(url);
             if (

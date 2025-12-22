@@ -24,6 +24,7 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
+  Grid,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -34,6 +35,7 @@ import { SelectedOptionsContext } from "../Context/SelectedOptionsProvider";
 import Product from "../../Models/Product";
 import SearchListProductItem from "./SearchListProductItem";
 import System from "../../Helpers/System";
+import SelectSucursal from "../Elements/Compuestos/SelectSucursal";
 
 
 const ITEMS_PER_PAGE = 10;
@@ -63,6 +65,9 @@ const SearchListProducts = ({
   const [productToDelete, setProductToDelete] = useState(null);
   const [hasResult, setHasResult] = useState(false);
 
+  const [sucursal, setSucursal] = useState(-1);
+  const [sucursalVal, setSucursalval] = useState(null);
+
   const setPageCount = (productCount) => {
     const totalPages = Math.ceil(productCount / ITEMS_PER_PAGE);
     if (!isNaN(totalPages)) {
@@ -86,7 +91,8 @@ const SearchListProducts = ({
     showLoading("Cargando productos...")
 
     Product.getInstance().getAllPaginate({
-      pageNumber: currentPage
+      pageNumber: currentPage,
+      sucursal: (sucursal == -1 ? 0 : sucursal)
     }, (prods, response) => {
       if (Array.isArray(response.data.productos)) {
         setProduct(response.data.productos);
@@ -104,7 +110,10 @@ const SearchListProducts = ({
   };
 
   const doSearch = (replaceSearch = "") => {
-    if (searchTerm == "" && replaceSearch == "") return
+    if (searchTerm == "" && replaceSearch == "") {
+      listarProductos()
+      return
+    }
 
 
     var txtSearch = searchTerm
@@ -120,17 +129,20 @@ const SearchListProducts = ({
 
 
     Product.getInstance().findByDescriptionPaginado({
-      description: txtSearch, canPorPagina: ITEMS_PER_PAGE, pagina: currentPage
+      description: txtSearch,
+      canPorPagina: ITEMS_PER_PAGE,
+      pagina: currentPage,
+      sucursal: (sucursal == -1 ? 0 : sucursal)
     }, (prods, response) => {
       // setFilteredProducts(prods);
       // setProduct(prods);
       // setFilteredProducts(prods);
       // setPageCount(prods);
-
       if (prods.length < 1) {
         showLoading("haciendo busqueda por codigo")
         Product.getInstance().findByCodigoBarras({
-          codigoProducto: txtSearch
+          codigoProducto: txtSearch,
+          sucursal: (sucursal == -1 ? 0 : sucursal)
         }, (prods) => {
           // setFilteredProducts(prods);
           // setProduct(prods);
@@ -271,10 +283,11 @@ const SearchListProducts = ({
   return (
     <Box sx={{ p: 2, mb: 4 }}>
       <div style={{ p: 2, mt: 4 }} role="tabpanel">
+
         <TextField
           sx={{
             marginTop: "30px",
-            width: "250px",
+            width: "300px",
           }}
           margin="dense"
           label="Buscar productos..."
@@ -284,6 +297,19 @@ const SearchListProducts = ({
             checkEnterSearch(e)
           }}
         />
+
+        <SelectSucursal
+          styles={{
+            marginTop: "30px",
+            marginLeft: "10px",
+            width: "250px",
+          }}
+          inputState={[sucursal, setSucursal]}
+          validationState={[sucursalVal, setSucursalval]}
+          withLabel={false}
+          label={"Sucursal"}
+        />
+
         <Button sx={{
           marginTop: "30px",
           marginLeft: "10px",
@@ -349,19 +375,21 @@ const SearchListProducts = ({
         showLastButton
       />
 
-      {openEditModal && selectedProduct && (
-        <EditarProducto
-          product={selectedProduct}
-          open={openEditModal}
-          handleClose={handleCloseEditModal}
-          onEdit={() => {
-            showMessage("Editado correctamente")
-            setTimeout(() => {
-              setRefresh(!refresh)
-            }, 100);
-          }}
-        />
-      )}
+      {
+        openEditModal && selectedProduct && (
+          <EditarProducto
+            product={selectedProduct}
+            open={openEditModal}
+            handleClose={handleCloseEditModal}
+            onEdit={() => {
+              showMessage("Editado correctamente")
+              setTimeout(() => {
+                setRefresh(!refresh)
+              }, 100);
+            }}
+          />
+        )
+      }
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>{"Confirmar Eliminación"}</DialogTitle>
         <DialogContent>
@@ -377,7 +405,7 @@ const SearchListProducts = ({
         </DialogActions>
       </Dialog>
 
-    </Box>
+    </Box >
   );
 };
 

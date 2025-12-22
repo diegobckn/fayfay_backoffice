@@ -318,6 +318,38 @@ class Client extends Model {
       // console.error(error);
     }
   };
+  
+  async edit(data:any, callbackOk:any, callbackWrong:any) {
+    try {
+      data.usaCuentaCorriente = 0
+
+      const configs = ModelConfig.get()
+      var url = configs.urlBase
+        + "/Clientes/PutClienteCliente"
+
+      const response = await axios.put(url, data);
+
+      if (response.status === 201
+        || response.status === 200
+      ) {
+        // Restablecer estados y cerrar diálogos después de realizar el pago exitosamente
+        callbackOk(response.data)
+      } else {
+        callbackWrong("Error de servidor")
+      }
+    } catch (error) {
+      if (error.response) {
+        callbackWrong(error.message);
+      } else if (error.response && error.response.status === 500) {
+        callbackWrong("Error interno del servidor. Por favor, inténtalo de nuevo más tarde.");
+      } else if (error.message != "") {
+        callbackWrong(error.message)
+      } else {
+        callbackWrong(error);
+      }
+      // console.error(error);
+    }
+  };
 
   async existRut(rut, callbackOk, callbackWrong) {
     try {

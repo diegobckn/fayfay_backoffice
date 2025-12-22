@@ -49,7 +49,7 @@ const SearchListProductItem = ({
     // console.log(product)
 
     Product.cargarImagen(product, (urlImagen) => {
-      console.log("cargarImagen de ", product, "..resultado", urlImagen)
+      // console.log("cargarImagen de ", product, "..resultado", urlImagen)
       setImage(urlImagen)
     })
   }, [product])

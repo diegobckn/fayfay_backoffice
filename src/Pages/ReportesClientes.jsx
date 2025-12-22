@@ -37,6 +37,7 @@ import axios from "axios";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ModelConfig from "../Models/ModelConfig";
+import System from "../Helpers/System";
 
 export default () => {
   const apiUrl = ModelConfig.get().urlBase;
@@ -1174,6 +1175,7 @@ export default () => {
                       <TableCell>Cantidad</TableCell>
                       <TableCell>Precio Unidad</TableCell>
                       <TableCell>Costo</TableCell>
+                      <TableCell>Subtotal</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -1182,8 +1184,9 @@ export default () => {
                         <TableRow key={detalle.codProducto}>
                           <TableCell>{detalle.descripcionProducto}</TableCell>
                           <TableCell>{detalle.cantidad}</TableCell>
-                          <TableCell>{detalle.precioUnidad}</TableCell>
-                          <TableCell>${detalle.costo}</TableCell>
+                          <TableCell>${System.formatMonedaLocal(detalle.precioUnidad,false)}</TableCell>
+                          <TableCell>${System.formatMonedaLocal(detalle.costo,false)}</TableCell>
+                          <TableCell>${System.formatMonedaLocal(detalle.cantidad * detalle.precioUnidad,false)}</TableCell>
                         </TableRow>
                       ))}
                   </TableBody>
