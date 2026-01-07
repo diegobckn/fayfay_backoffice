@@ -10,7 +10,7 @@ class Product extends Model {
     idProducto: number | null = null;
     description: string | null = null;
     price: number = 0;
-    precioCosto: string | null | undefined;
+    precioCosto: string | number | null | undefined = 0;
 
 
     static instance: Product | null = null;
@@ -355,30 +355,20 @@ class Product extends Model {
         codigoCliente,
         sucursal = 0
     }: any, callbackOk: any, callbackWrong: any) {
-        try {
-            const configs = ModelConfig.get()
-            var url = configs.urlBase +
-                "/ProductosTmp/GetProductosByCodigoBarra?codbarra=" + codigoProducto
-            if (codigoCliente) {
-                url += "&codigoCliente=" + codigoCliente
-            }
-            url += "&idEmpresa=" + configs.idEmpresa
-            url += "&codigoSucursal=" + sucursal
-
-            const response = await axios.get(url);
-            if (
-                response.data.statusCode == 200
-                || response.data.statusCode == 201
-
-            ) {
-                callbackOk(response.data.productos, response);
-            } else {
-                callbackWrong("respuesta incorrecta del servidor")
-            }
-        } catch (error) {
-            console.error("Error fetching products:", error);
-            callbackWrong(error)
+        const configs = ModelConfig.get()
+        var url = configs.urlBase +
+            "/ProductosTmp/GetProductosByCodigoBarra?codbarra=" + codigoProducto
+        if (codigoCliente) {
+            url += "&codigoCliente=" + codigoCliente
         }
+        url += "&idEmpresa=" + configs.idEmpresa
+        url += "&codigoSucursal=" + sucursal
+
+        EndPoint.sendGet(url, (responseData: any, response: any) => {
+            callbackOk(responseData.productos, response)
+        }, (err: any) => {
+            callbackWrong(err)
+        })
     }
 
     async update(data: any, callbackOk: any, callbackWrong: any) {

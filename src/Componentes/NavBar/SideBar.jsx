@@ -25,7 +25,7 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import SummarizeIcon from '@mui/icons-material/Summarize';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import { Button, IconButton, Typography } from "@mui/material";
-import { Settings } from "@mui/icons-material";
+import { LocalDrink, Settings } from "@mui/icons-material";
 import WarehouseIcon from '@mui/icons-material/Warehouse';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ListAltIcon from '@mui/icons-material/ListAlt';
@@ -119,6 +119,15 @@ export default function PermanentDrawerLeft() {
             { text: "Sub-Familia", link: "/productos/subfamilias", icon: <SchemaOutlinedIcon /> },
             // Add more sub-menu items as needed
           ],
+        },
+        {
+          text: "Envases",
+          link: "/envases",
+          icon: <LocalDrink />,
+          // subMenuItems: [
+          //   { text: "Entrada y Salida de Stock ", link: "/stock/entradasalidastock",icon: <ImportExportIcon/>},
+          // ]
+
         },
         {
           text: "Stock",
