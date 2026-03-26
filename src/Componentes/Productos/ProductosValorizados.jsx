@@ -217,10 +217,6 @@ const ProductosValorizados = ({
                 "Precio Venta"
               ]}
                 withLabel={false}
-                styles={{
-                  position: 'relative',
-                  top: "-16px"
-                }}
                 required={true}
                 inputState={[tipoPrecio, setTipoPrecio]}
               />
