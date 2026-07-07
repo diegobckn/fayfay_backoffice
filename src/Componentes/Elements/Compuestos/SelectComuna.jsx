@@ -27,7 +27,8 @@ const SelectComuna = ({
   fieldName = "select",
   label = fieldName[0].toUpperCase() + fieldName.substr(1),
   required = false,
-  vars = null
+  vars = null,
+  returnField = "id" // id | value
 }) => {
 
   const {
@@ -67,8 +68,19 @@ const SelectComuna = ({
   }
 
   const checkChange = (event) => {
-    setSelected(event.target.value)
-    setSelectedOriginal(event.target.value)
+    var valueId = event.target.value
+    var finalValue = valueId
+
+    if (returnField === "value") {
+      selectList.forEach((item, ix) => {
+        if (item.id == valueId) {
+          finalValue = item.comunaNombre
+        }
+      })
+    }
+
+    setSelected(finalValue)
+    setSelectedOriginal(finalValue)
   }
 
   const checkChangeBlur = (event) => {

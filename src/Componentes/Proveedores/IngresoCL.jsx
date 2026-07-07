@@ -214,6 +214,7 @@ const IngresoCL = ({
               fieldName="region"
               required={true}
               vars={[states, validatorStates]}
+              returnField="value"
             />
           </Grid>
           <Grid item xs={12} sm={4} md={4}>
@@ -222,6 +223,7 @@ const IngresoCL = ({
               inputRegionState={states.region}
               required={true}
               vars={[states, validatorStates]}
+              returnField="value"
             />
           </Grid>
           <Grid item xs={12} sm={4} md={4}>
