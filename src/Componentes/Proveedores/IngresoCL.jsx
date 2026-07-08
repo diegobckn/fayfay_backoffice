@@ -35,8 +35,15 @@ const IngresoCL = ({
   editData = null,
   onSave = (data) => { }
 }) => {
-  const { showLoading, hideLoading, showLoadingDialog, showMessage } =
-    useContext(SelectedOptionsContext);
+  const {
+    showLoading,
+    hideLoading,
+    showLoadingDialog,
+    showMessage
+  } = useContext(SelectedOptionsContext);
+
+  const [regiones, setRegiones] = useState([])
+  const [comunas, setComunas] = useState([])
 
   var states = {
     rut: useState(""),
@@ -72,6 +79,10 @@ const IngresoCL = ({
     if (!System.allValidationOk(validatorStates, showMessage)) {
       return false;
     }
+
+    const regObj = System.findFieldInArray(regiones, states.region[0])
+    const comObj = System.findFieldInArray(comunas, states.comuna[0])
+
     const cliente = {
       codigoCliente: (editData ? editData.codigoCliente : 0),
       rut: states.rut[0],
@@ -81,8 +92,8 @@ const IngresoCL = ({
       razonSocial: states.razonSocial[0],
       telefono: states.telefono[0],
       direccion: states.direccion[0],
-      region: states.region[0],
-      comuna: states.comuna[0],
+      region: regObj ? regObj.regionNombre : "",
+      comuna: comObj ? comObj.comunaNombre : "",
       giro: states.giro[0],
       formaPago: states.formaPago[0],
       urlPagina: states.urlPagina[0],
@@ -214,7 +225,7 @@ const IngresoCL = ({
               fieldName="region"
               required={true}
               vars={[states, validatorStates]}
-              returnField="value"
+              onLoadList={setRegiones}
             />
           </Grid>
           <Grid item xs={12} sm={4} md={4}>
@@ -223,7 +234,7 @@ const IngresoCL = ({
               inputRegionState={states.region}
               required={true}
               vars={[states, validatorStates]}
-              returnField="value"
+              onLoadList={setComunas}
             />
           </Grid>
           <Grid item xs={12} sm={4} md={4}>

@@ -25,6 +25,7 @@ const SelectRegion = ({
   label = fieldName[0].toUpperCase() + fieldName.substr(1),
   required = false,
   vars = null,
+  onLoadList = ()=>{},
   returnField = "id" // id | value
 }) => {
 
@@ -109,6 +110,7 @@ const SelectRegion = ({
   const loadList = async () => {
     Region.getInstance().getAll((regiones) => {
       setSelectList(regiones)
+      onLoadList(regiones)
 
       // console.log("loadList..selectedOriginal",selectedOriginal)
     }, (error) => {

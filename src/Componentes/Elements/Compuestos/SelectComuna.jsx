@@ -28,6 +28,7 @@ const SelectComuna = ({
   label = fieldName[0].toUpperCase() + fieldName.substr(1),
   required = false,
   vars = null,
+  onLoadList = () => { },
   returnField = "id" // id | value
 }) => {
 
@@ -97,6 +98,8 @@ const SelectComuna = ({
       // console.log("selectedRegion",selectedRegion)
       // console.log("comunas",comunas)
       setSelectList(comunas)
+      onLoadList(comunas)
+
     }, (error) => {
       console.log(error)
     })

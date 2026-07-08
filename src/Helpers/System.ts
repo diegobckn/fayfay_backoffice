@@ -1,4 +1,3 @@
-import { Height } from "@mui/icons-material";
 import CONSTANTS from "../definitions/Constants";
 import dayjs from "dayjs";
 
@@ -350,6 +349,16 @@ class System {
         const userAgent = navigator.userAgent;
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
     };
+
+    static findFieldInArray(array: any, valueToFind: any, fieldName = "id") {
+        var found = null
+        array.forEach((arItem:any) => {
+            if (arItem[fieldName] == valueToFind) {
+                found = arItem
+            }
+        })
+        return found
+    }
 
 }
 
