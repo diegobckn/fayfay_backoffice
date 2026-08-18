@@ -100,6 +100,11 @@ export default ({
     // console.log("queda asi", copiaProd)
   }
   const guardarCambios = () => {
+
+    if (precios.length < 1) {
+      return eliminarTodosLosRangos()
+    }
+
     showLoading("Guardando...")
 
     const arrayPrecios = precios.map((itemPrecio) => {
@@ -113,6 +118,30 @@ export default ({
         "precioVenta": parseFloat(itemPrecio.precioVenta)
       }
     })
+    Product.crearRangoPrecios(arrayPrecios, () => {
+      hideLoading()
+      setSelectedProduct(null)
+    }, (er) => {
+      hideLoading()
+      showMessage(er)
+    })
+
+
+  }
+
+  const eliminarTodosLosRangos = () => {
+    showLoading("Eliminando todos los rangos...")
+
+    const arrayPrecios = [{
+      "codBarra": selectedProduct.idProducto,
+      "codigoSucursal": 0,
+      "puntoVenta": "0",
+      "fechaIngreso": System.getInstance().getDateForServer(),
+      "cantidadDesde": 1,
+      "cantidadHasta": 2,
+      "precioVenta": -1
+    }]
+
     Product.crearRangoPrecios(arrayPrecios, () => {
       hideLoading()
       setSelectedProduct(null)
@@ -284,6 +313,14 @@ export default ({
                 actionButton={() => {
                   guardarCambios()
                 }} />
+
+              <SmallDangerButton
+                textButton={"Eliminar todos los rangos"}
+                isDisabled={precios.length < 1}
+                actionButton={() => {
+                  eliminarTodosLosRangos()
+                }} />
+
             </Grid>
           </Grid>
         )}
